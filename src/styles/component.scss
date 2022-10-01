@@ -74,3 +74,105 @@
   }
 
 }
+
+.total_back{
+  // padding: 105px 15px;
+  height: 100vh;
+  position: relative;
+  .detail{
+    display: flex;
+  }
+
+  .game_board{
+    // width: 100vw;
+    padding: 5px;
+    background-color: rgb(99, 208, 251);
+    margin: 0 auto;
+    text-align: center;
+
+    &_detail{
+      height: auto;
+      height: 30px;
+      position: relative;
+      padding: 15px 5px;
+
+      &_home{
+        // display: inline-block;
+        position: absolute;
+        top: 4%;
+        right: 42%;
+        transform: translate(-150px, 50%);
+      }
+      &_away{
+        // display: inline-block;
+        position: absolute;
+        top: 4%;
+        left: 50%;
+        transform: translate(66px, 50%);
+  
+      }
+
+      &_team{
+        padding-right: 35px;
+        font-size: 20px;
+        font-weight: 700;
+      }
+      &_score{
+        font-size: 20px;
+        font-weight: 500;
+        color: #FFF;
+      }
+
+    .home-team{
+      padding-right: 35px;
+      color: #333;
+    }
+
+    &_vs{
+      position: absolute;
+      top: 10%;
+      left: 50%;
+      transform: translate(50%, 50%);
+    }
+
+    .away-team{
+      padding-left: 35px;
+      color: rgb(253, 58, 58);
+    }
+  }
+  }
+
+  .ground_back{
+    // width: 37%;
+    // height: 75%;
+    width: 650px;
+    height: 650px;
+    margin: 0 auto;
+    transform: rotate(45deg);
+    background-color: rgb(14, 114, 14);
+    border-radius: 50px;
+    position: relative;
+    top: 220px;
+    left: 20px;
+    &_position{
+      &_location{
+        &_first_base{
+
+        }
+        &_second_base{
+          
+        }
+        &_third_base{
+          
+        }
+        &_last_base{
+          
+        }
+        &_pitcher_base{
+          
+        }
+      }
+    }
+
+  }
+}
