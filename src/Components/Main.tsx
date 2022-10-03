@@ -5,7 +5,7 @@ import '../styles/component.scss'
 const Main: React.FC = () => {
 
 
-  const [teamName, setTeamName] = useState<String>('');
+  const [teamName, setTeamName] = useState<string>('');
   const [resultName, setResultName] = useState<Boolean>(false);
   
   const registerTeam = () : void => {
