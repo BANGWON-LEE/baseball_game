@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import '../styles/component.scss'
+import closeBtn from "../asset/png/close_btn.png"
 
 const Ground: React.FC = () => {
 
@@ -50,23 +51,6 @@ const Ground: React.FC = () => {
                 no3:''
             },
         ],
-        // middle:[
-        //     {
-        //         no1:'4',
-        //         no2:'5',
-        //         no3:'6'
-        //     },
-        // ],
-        // bottom:[
-        //     {
-        //         no1:'7',
-        //         no2:'8',
-        //         no3:'9'
-        //     },
-        // ],
-        // zero:[
-        //     {no1:'0'}
-        // ]
     };
 
     // const [myNumArray, setMyNumArray] = useState
@@ -75,7 +59,7 @@ const Ground: React.FC = () => {
     const gameStart = () : void => {
         
         if(gameStatus === 2){
-            if((myNumArray[0] === '0' || myNumArray[1] === '0' || myNumArray[2] === '0') ||   (cntFirst <= '0'  &&  cntFirst > '15') ){
+            if((myNumArray[0] === '' || myNumArray[1] === '' || myNumArray[2] === '') ||   (cntFirst <= '0'  &&  cntFirst > '15') ){
                 alert('알맞은 숫자를 입력해주세요');
                 return
             }
@@ -108,55 +92,50 @@ const Ground: React.FC = () => {
     const selectNum = (event:any) :void => {
         const numberChoice = event.currentTarget.value
 
-            setCntFirst(cntFirst.concat(numberChoice))
-       
+        setCntFirst(cntFirst.concat(numberChoice))
     }
     
     const toNextNum = () : void => {
-        setMyNumArray(myNumArray.concat(cntFirst))
-        setCntFirst('')
+            console.log('cntFirst', cntFirst)
+
+        if( (parseInt(cntFirst) > 0 &&  parseInt(cntFirst) <= 15) && cntFirst !== '' ){
+            if( myNumArray.length === 0 || myNumArray.length === 1 || myNumArray.length === 2) {
+                setMyNumArray(myNumArray.concat(cntFirst))
+                setCntFirst('')
+            }    
+          
+        } else {
+            alert("숫자 1 이상의 15 이하의 번호를 입력해주세요")
+            setCntFirst('')
+            return
+        }
+       
     }
 
     const toPrevNum = () : void => {
         // myNumArray.pop()
-        if(myNumArray.length === 2){
+        if(myNumArray.length === 3){
+            setCntFirst(myNumArray[2])
+            if(cntFirst === '' && myNumArray[2] !== '') {myNumArray.pop()}
+        } else if(myNumArray.length === 2){
             setCntFirst(myNumArray[1])
+            if(cntFirst === '' && myNumArray[1] !== '' ) {myNumArray.pop()}
         } else if( myNumArray.length === 1 ){
             setCntFirst(myNumArray[0]) 
+            if(cntFirst === '' && myNumArray[0] !== '' ) {myNumArray.pop()}
         }
-      
-        // setCntFirst('')
     }
-    
+
+    const deleteNum = () : void => {
+        setCntFirst('')
+        if(myNumArray.length === 1  && myNumArray[0] === cntFirst){
+            myNumArray.pop();
+        }
+    }
+
+
     console.log('myNumArray', myNumArray)
 
-
-    
-    // useEffect(() => {
-    //     console.log('selectedNum', selectedNum)
-    //     if(selectedNum){
-
-    //         if(cntFirst){
-    //             setCntFirst(cntFirst.concat(selectedNum))
-   
-    //             if(cntFirst.length <= 2){
-    //                 setCntFirst(cntFirst.substring(1))
-    //                 // document.getElementById('insert_first')?.blur()
-    //                 document.getElementById('insert_second')?.focus()
-    //             } 
-    //         } else if(cntSecond){
-    //             setCntSecond(cntSecond.concat(selectedNum))
-            
-    //             if(cntSecond.length <= 2) {
-    //                 setCntSecond(cntSecond.substring(1))
-    //                 // document.getElementById('insert_second')?.blur()
-    //                 document.getElementById('insert_third')?.focus()
-    //             } 
-
-    //         } 
-    //     }
-
-    // },[selectedNum])
 
     return(
         <div className="total_back">
@@ -211,20 +190,9 @@ const Ground: React.FC = () => {
                                     }
                                     }}
                                 />
-                                {/* <input 
-                                    type="text" 
-                                    onChange={(e) => setCntSecond(e.target.value)} 
-                                    defaultValue={cntSecond} 
-                                    className="game_pad_text_insert" 
-                                    id="input_second"
-                                />
-                                <input 
-                                    type="text" 
-                                    onChange={(e) => setCntThird(e.target.value)} 
-                                    defaultValue={cntThird} 
-                                    className="game_pad_text_insert" 
-                                    id="input_third"
-                                /> */}
+                                <button className="game_pad_text_btn" onClick={() => deleteNum()}>
+                                    <img src={closeBtn}  alt={'close'} className="game_pad_text_btn_icon" />
+                                </button>
                             </div>
                         { numObject.num.map((data) => (
                             <div className="game_pad_num_line">
@@ -237,8 +205,8 @@ const Ground: React.FC = () => {
                         }
                         {gameStatus === 2 ?
                         <div className="game_pad_num_line">
-                            <button className="game_pad_num_line_info_register" onClick={() => toPrevNum()} >이전</button>
-                            <button className="game_pad_num_line_info_register" onClick={() => toNextNum()} >다음</button>
+                            {myNumArray.length >= 2  && <button className="game_pad_num_line_info_register" onClick={() => toPrevNum()}>이전</button>}
+                            {myNumArray.length < 3 && <button className="game_pad_num_line_info_register" onClick={() => toNextNum()}>다음</button>}
                             <button className="game_pad_num_line_info_register" onClick={() => gameStart()}>등록</button>
                         </div>
                         : gameStatus === 3 ?
@@ -259,4 +227,4 @@ export default Ground;
 
 // 221112 구현해야할 부분
 // 백스페이스 버튼(번호 입력 중 수정을 위해) ---> pop으로 값 제거
-// 
+// 221112 저녁 =>다음 이전 버튼 부분 수정하기
