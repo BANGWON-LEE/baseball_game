@@ -8,9 +8,8 @@ const Ground: React.FC = () => {
     const [searchParams] = useSearchParams();
     const teamName = searchParams.get('team');
     const [gameStatus, setGameStatus] = useState<number>(1)
-    const [cntFirst, setCntFirst] = useState<string>('')
-    const [cntSecond, setCntSecond] = useState<string>('')
-    const [cntThird, setCntThird] = useState<string>('')
+    const [cntText, setCntText] = useState<string>('')
+
 
     interface BtnType
         {
@@ -59,11 +58,11 @@ const Ground: React.FC = () => {
     const gameStart = () : void => {
         
         if(gameStatus === 2){
-            if((myNumArray[0] === '' || myNumArray[1] === '' || myNumArray[2] === '') ||   (cntFirst <= '0'  &&  cntFirst > '15') ){
+            if((myNumArray[0] === '' || myNumArray[1] === '' || myNumArray[2] === '') ||   (cntText <= '0'  &&  cntText > '15') ){
                 alert('알맞은 숫자를 입력해주세요');
                 return
             }
-            // outCntArray.push(ZeroRemove(cntFirst))
+            // outCntArray.push(ZeroRemove(cntText))
             // outCntArray.push(ZeroRemove(cntSecond))
             // outCntArray.push(ZeroRemove(cntThird))
         }
@@ -92,21 +91,21 @@ const Ground: React.FC = () => {
     const selectNum = (event:any) :void => {
         const numberChoice = event.currentTarget.value
 
-        setCntFirst(cntFirst.concat(numberChoice))
+        setCntText(cntText.concat(numberChoice))
     }
     
     const toNextNum = () : void => {
-            console.log('cntFirst', cntFirst)
+            console.log('cntText', cntText)
 
-        if( (parseInt(cntFirst) > 0 &&  parseInt(cntFirst) <= 15) && cntFirst !== '' ){
+        if( (parseInt(cntText) > 0 &&  parseInt(cntText) <= 15) && cntText !== '' ){
             if( myNumArray.length === 0 || myNumArray.length === 1 || myNumArray.length === 2) {
-                setMyNumArray(myNumArray.concat(cntFirst))
-                setCntFirst('')
+                setMyNumArray(myNumArray.concat(cntText))
+                setCntText('')
             }    
           
         } else {
             alert("숫자 1 이상의 15 이하의 번호를 입력해주세요")
-            setCntFirst('')
+            setCntText('')
             return
         }
        
@@ -115,20 +114,20 @@ const Ground: React.FC = () => {
     const toPrevNum = () : void => {
         // myNumArray.pop()
         if(myNumArray.length === 3){
-            setCntFirst(myNumArray[2])
-            if(cntFirst === '' && myNumArray[2] !== '') {myNumArray.pop()}
+            setCntText(myNumArray[2])
+            if(cntText === '' && myNumArray[2] !== '') {myNumArray.pop()}
         } else if(myNumArray.length === 2){
-            setCntFirst(myNumArray[1])
-            if(cntFirst === '' && myNumArray[1] !== '' ) {myNumArray.pop()}
+            setCntText(myNumArray[1])
+            if(cntText === '' && myNumArray[1] !== '' ) {myNumArray.pop()}
         } else if( myNumArray.length === 1 ){
-            setCntFirst(myNumArray[0]) 
-            if(cntFirst === '' && myNumArray[0] !== '' ) {myNumArray.pop()}
+            setCntText(myNumArray[0]) 
+            if(cntText === '' && myNumArray[0] !== '' ) {myNumArray.pop()}
         }
     }
 
     const deleteNum = () : void => {
-        setCntFirst('')
-        if(myNumArray.length === 1  && myNumArray[0] === cntFirst){
+        setCntText('')
+        if(myNumArray.length === 1  && myNumArray[0] === cntText){
             myNumArray.pop();
         }
     }
@@ -178,8 +177,8 @@ const Ground: React.FC = () => {
                             <div className="game_pad_text">
                                 <input 
                                     type="text"  
-                                    onChange={(e) => setCntFirst(e.target.value)} 
-                                    defaultValue={cntFirst} 
+                                    onChange={(e) => setCntText(e.target.value)} 
+                                    defaultValue={cntText} 
                                     className="game_pad_text_insert" 
                                     id="input_first"
                                     readOnly
