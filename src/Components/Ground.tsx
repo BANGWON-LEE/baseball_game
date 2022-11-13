@@ -193,8 +193,8 @@ const Ground: React.FC = () => {
                                     <img src={closeBtn}  alt={'close'} className="game_pad_text_btn_icon" />
                                 </button>
                             </div>
-                        { numObject.num.map((data) => (
-                            <div className="game_pad_num_line">
+                        { numObject.num.map((data, index) => (
+                            <div className="game_pad_num_line" key={"btn_key" + index}>
                                 {data.no1 !=="" && <button className="btn_num" onClick={selectNum} value={`${data.no1}`}>{ data.no1 }</button>}
                                     <button className="btn_num" onClick={selectNum} value={`${data.no2}`}>{data.no2}</button>
                                 {data.no3 !== "" &&  <button className="btn_num" onClick={selectNum} value={`${data.no3}`}>{data.no3}</button>}
@@ -204,7 +204,7 @@ const Ground: React.FC = () => {
                         }
                         {gameStatus === 2 ?
                         <div className="game_pad_num_line">
-                            {myNumArray.length >= 2  && <button className="game_pad_num_line_info_register" onClick={() => toPrevNum()}>이전</button>}
+                            {myNumArray.length >= 1  && <button className="game_pad_num_line_info_register" onClick={() => toPrevNum()}>이전</button>}
                             {myNumArray.length < 3 && <button className="game_pad_num_line_info_register" onClick={() => toNextNum()}>다음</button>}
                             <button className="game_pad_num_line_info_register" onClick={() => gameStart()}>등록</button>
                         </div>
