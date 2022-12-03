@@ -234,7 +234,7 @@
           position: relative;
           // top: 15px;
           // left: 250px;
-          bottom: 75px;
+          bottom: 55px;
           >h2{
             text-align: center;
           }
@@ -255,18 +255,27 @@
               border-radius: 5px;
             }
 
-            &_btn{
+            &_block{
+              position: relative;
               width: auto;
-              position: absolute;
-              // width: 40px;
-              top: 80px;
-              right: 45px;
+              height: auto;
+              bottom: 130px;
+              
 
-              &_icon{
-                width: 40px;
+
+              &_btn{
+                width: auto;
+                height: auto;
+                position: absolute;
+                // width: 40px;
+                top: 80px;
+                right: 45px;
+
+                &_icon{
+                  width: 40px;
+                }
               }
             }
-
           }
 
           &_num_line{
@@ -300,6 +309,30 @@
             border-radius: 5px;
             cursor: pointer;
           }
+        }
+
+        .game_pad_result{
+          width: auto;
+          height: auto;
+          transform: rotate(-45deg);
+          display: inline-block;
+          position: relative;
+          // top: 15px;
+          // left: 250px;
+          // bottom: 55px;
+          top: 90px;
+
+          &_inner{
+            width: auto;
+            margin-bottom: 10px;
+            display: inline-flex;
+            &_text{
+              margin: 0 15px;
+              font-size: 25px;
+              font-weight: 700;
+            }
+          }
+
         }
 
       }
@@ -360,7 +393,7 @@
     transform: rotate(-45deg);
     position: relative;
     top: 160px;
-    left: 5px;
+    left: 55px;
     background-color: rgb(248, 188, 128);
     // color: rgb(231, 224, 224);
     color: #FFF;

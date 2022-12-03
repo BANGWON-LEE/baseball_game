@@ -3,57 +3,22 @@ import { useSearchParams } from "react-router-dom";
 import '../styles/component.scss'
 import closeBtn from "../asset/png/close_btn.png"
 
+
+
 const Ground: React.FC = () => {
 
     const [searchParams] = useSearchParams();
     const teamName = searchParams.get('team');
     const [gameStatus, setGameStatus] = useState<number>(1)
     const [cntText, setCntText] = useState<string>('')
+    const [homeTeamScore, setHomeTeamScore] = useState<Number>(0)
+    const [awayTeamScore, setAwayTeamScore] = useState<Number>(0)
+   
 
 
-    interface BtnType
-        {
-            num : Line[];
-            // middle : LineMiddle[];
-            // bottom : LineBottom[];
-            // zero : LineFinish[];
-        }
-
-    interface Line
-        {
-            no1: string;
-            no2: string;
-            no3: string;
-        };
-
-
-    const numObject: BtnType = {
-        num:[
-            {
-                no1:'1',
-                no2:'2',
-                no3:'3'
-            },
-            {
-                no1:'4',
-                no2:'5',
-                no3:'6'
-            },
-            {
-                no1:'7',
-                no2:'8',
-                no3:'9'
-            },
-            {
-                no1:'',
-                no2:'0',
-                no3:''
-            },
-        ],
-    };
 
     // const [myNumArray, setMyNumArray] = useState
-    const  [myNumArray, setMyNumArray] =useState<string[]>([]) // 숫자 배열
+    const  [myNumArray, setMyNumArray] = useState<string[]>([]) // 숫자 배열
 
     const gameStart = () : void => {
         
@@ -62,9 +27,6 @@ const Ground: React.FC = () => {
                 alert('알맞은 숫자를 입력해주세요');
                 return
             }
-            // outCntArray.push(ZeroRemove(cntText))
-            // outCntArray.push(ZeroRemove(cntSecond))
-            // outCntArray.push(ZeroRemove(cntThird))
         }
         setGameStatus(gameStatus + 1)
     }
@@ -102,7 +64,6 @@ const Ground: React.FC = () => {
                 setMyNumArray(myNumArray.concat(cntText))
                 setCntText('')
             }    
-          
         } else {
             alert("숫자 1 이상의 15 이하의 번호를 입력해주세요")
             setCntText('')
@@ -132,25 +93,20 @@ const Ground: React.FC = () => {
         }
     }
 
-
-    console.log('myNumArray', myNumArray)
+    const [determineMyOutNum, setDetermineMyOutNum] =useState<string[]>([])
+    const determineOutNum = () => {
+        // console.log('deter')
+        setDetermineMyOutNum(JSON.parse(JSON.stringify(myNumArray)))
+        setGameStatus(gameStatus + 1)
+    }
+    
+    console.log('determineMyOutNum', determineMyOutNum)
+    const [gameRound, setGameRound] = useState<string>('0')
 
 
     return(
         <div className="total_back">
-            <div className="game_board">
-                <div className="game_board_detail">
-                    <div className="game_board_detail_home">
-                        <span className="game_board_detail_team home-team">{teamName}</span>
-                        <span className="game_board_detail_score home-team">1</span>
-                    </div>
-                    <span className="game_board_detail_vs">VS</span>
-                    <div className="game_board_detail_away">
-                        <span className="game_board_detail_score away-team">1</span>
-                        <span className="game_board_detail_team away-team">너네 야구단</span>
-                    </div>
-                </div>
-            </div>
+            <TopBar teamName={teamName} homeTeamScore={homeTeamScore} awayTeamScore={awayTeamScore} />
             <div className="ground_back">
                 <div className="ground_back_position">
                     <div className="ground_back_position_top-base"/>
@@ -165,55 +121,28 @@ const Ground: React.FC = () => {
                     {gameStatus === 1 &&
                         <button className="game_start" onClick={gameStart}>게임시작</button>
                     }
-                    <div className="game_pad">
-                        {gameStatus === 2 &&
-                            <h2>아웃 카운트 입력</h2>
-                        }
-                        {gameStatus === 3 &&
-                            <h2>1회</h2>
-                        }
-                        {gameStatus !== 1 &&
-                        <>
-                            <div className="game_pad_text">
-                                <input 
-                                    type="text"  
-                                    onChange={(e) => setCntText(e.target.value)} 
-                                    defaultValue={cntText} 
-                                    className="game_pad_text_insert" 
-                                    id="input_first"
-                                    readOnly
-                                    placeholder="0"
-                                    onKeyPress={(e) => {
-                                    if (e.key === 'Backspace') {
-                                        // registerTeam();
-                                    }
-                                    }}
-                                />
-                                <button className="game_pad_text_btn" onClick={() => deleteNum()}>
-                                    <img src={closeBtn}  alt={'close'} className="game_pad_text_btn_icon" />
-                                </button>
-                            </div>
-                        { numObject.num.map((data, index) => (
-                            <div className="game_pad_num_line" key={"btn_key" + index}>
-                                {data.no1 !=="" && <button className="btn_num" onClick={selectNum} value={`${data.no1}`}>{ data.no1 }</button>}
-                                    <button className="btn_num" onClick={selectNum} value={`${data.no2}`}>{data.no2}</button>
-                                {data.no3 !== "" &&  <button className="btn_num" onClick={selectNum} value={`${data.no3}`}>{data.no3}</button>}
-                            </div>
-                            ))}
-                        </>
-                        }
+                    <div className={` ${(myNumArray.length !== 3 && gameStatus === 2) || gameStatus === 3 ? "game_pad" : "game_pad_result" }`}>
                         {gameStatus === 2 ?
-                        <div className="game_pad_num_line">
-                            {myNumArray.length >= 1  && <button className="game_pad_num_line_info_register" onClick={() => toPrevNum()}>이전</button>}
-                            {myNumArray.length < 3 && <button className="game_pad_num_line_info_register" onClick={() => toNextNum()}>다음</button>}
-                            <button className="game_pad_num_line_info_register" onClick={() => gameStart()}>등록</button>
-                        </div>
+                            <h2>아웃 카운트 입력</h2>
                         : gameStatus === 3 ?
-                        // 게임 중일 때 사용될 등록버튼
-                        <div className="game_pad_num_line">
-                            <button className="game_pad_num_line_info_register">등록</button>
-                        </div>
+                            <h2>공격 카운트 입력</h2>
+                        : null
+                        }
+                         <MyOutNum myNumArray={myNumArray} />
+                        {(gameStatus === 2 && myNumArray.length !== 3 )  ?
+                            <ChoiceOutNumberPad deleteNum={deleteNum} cntText={cntText} setCntText={setCntText} selectNum={selectNum} myNumArray={myNumArray} />
+                            : null                        }
+                        { gameStatus === 3 ?
+                            <ChoiceGameNumberPad deleteNum={deleteNum} cntText={cntText} setCntText={setCntText} selectNum={selectNum} myNumArray={myNumArray} />
                         : null }           
+                        {gameStatus === 2 || gameStatus === 3 ?
+                        <div className="game_pad_num_line">
+                            {myNumArray.length !== 3  && <button className="game_pad_num_line_info_register" onClick={() => toPrevNum()}>이전</button>}
+                            {myNumArray.length < 3 && <button className="game_pad_num_line_info_register" onClick={() => toNextNum()}>다음</button>}
+                            {myNumArray.length === 3 && <button className="game_pad_num_line_info_register" onClick={()=>determineOutNum()}>등록</button>}
+                        </div>
+                        : null    
+                    }
                     </div>
                 </div>
             </div>
@@ -223,7 +152,181 @@ const Ground: React.FC = () => {
 
 export default Ground;
 
+const TopBar = ({teamName, homeTeamScore, awayTeamScore}: any)  => {
+    return(
+        <div className="game_board">
+            <div className="game_board_detail">
+                <div className="game_board_detail_home">
+                    <span className="game_board_detail_team home-team">{teamName}</span>
+                    <span className="game_board_detail_score home-team">{homeTeamScore}</span>
+                </div>
+                <span className="game_board_detail_vs">VS</span>
+                <div className="game_board_detail_away">
+                    <span className="game_board_detail_score away-team">{awayTeamScore}</span>
+                    <span className="game_board_detail_team away-team">너네 야구단</span>
+                </div>
+            </div>
+        </div>
+    )
+}
 
-// 221112 구현해야할 부분
-// 백스페이스 버튼(번호 입력 중 수정을 위해) ---> pop으로 값 제거
-// 221112 저녁 =>다음 이전 버튼 부분 수정하기
+const ChoiceOutNumberPad = ({deleteNum, cntText, setCntText, selectNum, myNumArray}: any )  => {
+    
+    interface BtnType
+        {
+            num : Line[];
+        }
+
+    interface Line
+        {
+            no1: string;
+            no2: string;
+            no3: string;
+        };
+
+
+    const numObject: BtnType = {
+        num:[
+            {
+                no1:'1',
+                no2:'2',
+                no3:'3'
+            },
+            {
+                no1:'4',
+                no2:'5',
+                no3:'6'
+            },
+            {
+                no1:'7',
+                no2:'8',
+                no3:'9'
+            },
+            {
+                no1:'',
+                no2:'0',
+                no3:''
+            },
+        ],
+    };
+    
+    return(
+        <>
+        <div className="game_pad_text">
+            <input 
+                type="text"  
+                onChange={(e) => setCntText(e.target.value)} 
+                defaultValue={cntText} 
+                className="game_pad_text_insert" 
+                id="input_first"
+                readOnly
+                placeholder="0"
+                onKeyPress={(e) => {
+                // if (e.key === 'Backspace') {
+                //     // registerTeam();
+                // }
+                }}
+            />
+            <div className="game_pad_text_block">
+                <button className="game_pad_text_block_btn" onClick={() => deleteNum()}>
+                    <img src={closeBtn}  alt={'close'} className="game_pad_text_block_btn_icon" />
+                </button>
+            </div>
+        </div>
+    { numObject.num.map((data, index) => (
+        <div className="game_pad_num_line" key={"btn_key" + index}>
+            {data.no1 !=="" && <button className="btn_num" onClick={selectNum} value={`${data.no1}`} disabled={myNumArray.length === 3 ? true : false}>{ data.no1 }</button>}
+                <button className="btn_num" onClick={selectNum} value={`${data.no2}`} disabled={myNumArray.length === 3 ? true : false} >{data.no2}</button>
+            {data.no3 !== "" &&  <button className="btn_num" onClick={selectNum} value={`${data.no3}`} disabled={myNumArray.length === 3 ? true : false} >{data.no3}</button>}
+        </div>
+        ))}
+    </>
+    )
+}
+
+const ChoiceGameNumberPad = ({deleteNum, cntText, setCntText, selectNum, myNumArray}: any )  => {
+    
+    interface BtnType
+        {
+            num : Line[];
+        }
+
+    interface Line
+        {
+            no1: string;
+            no2: string;
+            no3: string;
+        };
+
+
+    const numObject: BtnType = {
+        num:[
+            {
+                no1:'1',
+                no2:'2',
+                no3:'3'
+            },
+            {
+                no1:'4',
+                no2:'5',
+                no3:'6'
+            },
+            {
+                no1:'7',
+                no2:'8',
+                no3:'9'
+            },
+            {
+                no1:'',
+                no2:'0',
+                no3:''
+            },
+        ],
+    };
+    
+    return(
+        <>
+        <div className="game_pad_text">
+            <input 
+                type="text"  
+                onChange={(e) => setCntText(e.target.value)} 
+                defaultValue={cntText} 
+                className="game_pad_text_insert" 
+                id="input_first"
+                readOnly
+                placeholder="0"
+                onKeyPress={(e) => {
+                // if (e.key === 'Backspace') {
+                //     // registerTeam();
+                // }
+                }}
+            />
+            <div className="game_pad_text_block">
+                <button className="game_pad_text_block_btn" onClick={() => deleteNum()}>
+                    <img src={closeBtn}  alt={'close'} className="game_pad_text_block_btn_icon" />
+                </button>
+            </div>
+        </div>
+    { numObject.num.map((data, index) => (
+        <div className="game_pad_num_line" key={"btn_key" + index}>
+            {data.no1 !=="" && <button className="btn_num" onClick={selectNum} value={`${data.no1}`} disabled={myNumArray.length === 3 ? true : false}>{ data.no1 }</button>}
+                <button className="btn_num" onClick={selectNum} value={`${data.no2}`} disabled={myNumArray.length === 3 ? true : false} >{data.no2}</button>
+            {data.no3 !== "" &&  <button className="btn_num" onClick={selectNum} value={`${data.no3}`} disabled={myNumArray.length === 3 ? true : false} >{data.no3}</button>}
+        </div>
+        ))}
+    </>
+    )
+}
+
+const MyOutNum = ({myNumArray}: any) => {
+
+    return(
+        <div className="game_pad_result_inner">
+            <div className="game_pad_result_inner_text">{myNumArray[0]}</div>
+            <div className="game_pad_result_inner_text">{myNumArray[1]}</div>
+            <div className="game_pad_result_inner_text">{myNumArray[2]}</div>
+        </div>
+    )
+}
+
+// 게임 진행 할 로직 작성하기
