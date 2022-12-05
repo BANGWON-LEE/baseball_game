@@ -13,11 +13,7 @@ const Ground: React.FC = () => {
     const [cntText, setCntText] = useState<string>('')
     const [homeTeamScore, setHomeTeamScore] = useState<Number>(0)
     const [awayTeamScore, setAwayTeamScore] = useState<Number>(0)
-   
 
-
-
-    // const [myNumArray, setMyNumArray] = useState
     const  [myNumArray, setMyNumArray] = useState<string[]>([]) // 숫자 배열
 
     const gameStart = () : void => {
@@ -59,6 +55,7 @@ const Ground: React.FC = () => {
     const toNextNum = () : void => {
             console.log('cntText', cntText)
 
+
         if( (parseInt(cntText) > 0 &&  parseInt(cntText) <= 15) && cntText !== '' ){
             if( myNumArray.length === 0 || myNumArray.length === 1 || myNumArray.length === 2) {
                 setMyNumArray(myNumArray.concat(cntText))
@@ -69,7 +66,6 @@ const Ground: React.FC = () => {
             setCntText('')
             return
         }
-       
     }
 
     const toPrevNum = () : void => {
@@ -93,16 +89,34 @@ const Ground: React.FC = () => {
         }
     }
 
-    const [determineMyOutNum, setDetermineMyOutNum] =useState<string[]>([])
+    const [determineMyOutNum, setDetermineMyOutNum] = useState<string[]>([])
+    const [rivalNum, setRivalNum] = useState<string[]>([])
+    // const [determineMyAttackNum, setDetermineMyAttackNum] = useState<string[]>([])
+
     const determineOutNum = () => {
         // console.log('deter')
         setDetermineMyOutNum(JSON.parse(JSON.stringify(myNumArray)))
+        // 난수 3개를 담기 위한 로직
+        let rivalArr : string[] = []
+        for(let i = 0; i<=2; i++){
+            let randomNum = Math.floor(Math.random() * (15-1)+1).toString()
+            rivalArr.push(randomNum)
+            console.log('i-- 2', randomNum)
+        }
+        setRivalNum(rivalArr)
+        setMyNumArray([])
         setGameStatus(gameStatus + 1)
+    }
+
+
+    const determineAttackNum = () => {
+        const attackNum = JSON.parse(JSON.stringify(myNumArray))
+
     }
     
     console.log('determineMyOutNum', determineMyOutNum)
     const [gameRound, setGameRound] = useState<string>('0')
-
+    console.log('rivalNum', rivalNum)
 
     return(
         <div className="total_back">
@@ -122,24 +136,32 @@ const Ground: React.FC = () => {
                         <button className="game_start" onClick={gameStart}>게임시작</button>
                     }
                     <div className={` ${(myNumArray.length !== 3 && gameStatus === 2) || gameStatus === 3 ? "game_pad" : "game_pad_result" }`}>
+                        
                         {gameStatus === 2 ?
+                        <>
                             <h2>아웃 카운트 입력</h2>
-                        : gameStatus === 3 ?
-                            <h2>공격 카운트 입력</h2>
+                            <MyOutNum myNumArray={myNumArray} />
+                        </>
+                            : gameStatus === 3 ?
+                            <>
+                                <h2>나의 아웃 카운트</h2>
+                                <MyOutNum myNumArray={determineMyOutNum} />
+                                <h2>공격 카운트 입력</h2>
+                                <MyAttackNum myNumArray={myNumArray} />
+                            </>
                         : null
                         }
-                         <MyOutNum myNumArray={myNumArray} />
                         {(gameStatus === 2 && myNumArray.length !== 3 )  ?
                             <ChoiceOutNumberPad deleteNum={deleteNum} cntText={cntText} setCntText={setCntText} selectNum={selectNum} myNumArray={myNumArray} />
                             : null                        }
                         { gameStatus === 3 ?
-                            <ChoiceGameNumberPad deleteNum={deleteNum} cntText={cntText} setCntText={setCntText} selectNum={selectNum} myNumArray={myNumArray} />
+                            <ChoiceAttackNumberPad deleteNum={deleteNum} cntText={cntText} setCntText={setCntText} selectNum={selectNum} myNumArray={myNumArray} />
                         : null }           
                         {gameStatus === 2 || gameStatus === 3 ?
                         <div className="game_pad_num_line">
                             {myNumArray.length !== 3  && <button className="game_pad_num_line_info_register" onClick={() => toPrevNum()}>이전</button>}
                             {myNumArray.length < 3 && <button className="game_pad_num_line_info_register" onClick={() => toNextNum()}>다음</button>}
-                            {myNumArray.length === 3 && <button className="game_pad_num_line_info_register" onClick={()=>determineOutNum()}>등록</button>}
+                            {myNumArray.length === 3 && <button className="game_pad_num_line_info_register" onClick={()=> determineMyOutNum.length !== 3 ? determineOutNum() : determineAttackNum()}>등록</button>}
                         </div>
                         : null    
                     }
@@ -244,7 +266,7 @@ const ChoiceOutNumberPad = ({deleteNum, cntText, setCntText, selectNum, myNumArr
     )
 }
 
-const ChoiceGameNumberPad = ({deleteNum, cntText, setCntText, selectNum, myNumArray}: any )  => {
+const ChoiceAttackNumberPad = ({deleteNum, cntText, setCntText, selectNum, myNumArray}: any )  => {
     
     interface BtnType
         {
@@ -329,4 +351,16 @@ const MyOutNum = ({myNumArray}: any) => {
     )
 }
 
-// 게임 진행 할 로직 작성하기
+
+const MyAttackNum = ({myNumArray}: any) => {
+
+    return(
+        <div className="game_pad_result_inner">
+            <div className="game_pad_result_inner_text">{myNumArray[0]}</div>
+            <div className="game_pad_result_inner_text">{myNumArray[1]}</div>
+            <div className="game_pad_result_inner_text">{myNumArray[2]}</div>
+        </div>
+    )
+}
+
+// 20221204 상대팀 랜덤 숫자 값까지 구함, 상대방 숫자 맞추게하는 로직 작성해야 함

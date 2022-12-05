@@ -231,12 +231,14 @@
           height: auto;
           transform: rotate(-45deg);
           display: inline-block;
-          position: relative;
+          position: absolute;
+          
           // top: 15px;
-          // left: 250px;
-          bottom: 55px;
+          left: 170px;
+          bottom: 90px;
           >h2{
             text-align: center;
+            margin: 5px 0px;
           }
 
           &_text{
@@ -393,7 +395,7 @@
     transform: rotate(-45deg);
     position: relative;
     top: 160px;
-    left: 55px;
+    left: 20px;
     background-color: rgb(248, 188, 128);
     // color: rgb(231, 224, 224);
     color: #FFF;
