@@ -110,6 +110,8 @@
     display: flex;
   }
 
+  
+
   .game_board{
     // width: 100vw;
     padding: 5px;
@@ -122,20 +124,26 @@
       height: 30px;
       position: relative;
       padding: 15px 5px;
+      width: 800px;
+      margin: 0 auto;
 
       &_home{
         // display: inline-block;
         position: absolute;
         top: 4%;
         right: 42%;
-        transform: translate(-150px, 50%);
+        width: auto;
+        min-width: 10%;
+        transform: translate(-85%, 45%);
       }
       &_away{
         // display: inline-block;
         position: absolute;
         top: 4%;
         left: 50%;
-        transform: translate(66px, 50%);
+        width: auto;
+        min-width: 10%;
+        transform: translate(35%, 45%);
   
       }
 
@@ -169,174 +177,285 @@
   }
   }
 
-  .ground_back{
-    // width: 37%;
-    // height: 75%;
-    width: 650px;
-    height: 650px;
+  &_inner{
+    width: 800px;
     margin: 0 auto;
-    transform: rotate(45deg);
-    background-color: rgb(14, 114, 14);
-    border-radius: 50px;
-    position: relative;
-    top: 220px;
-    left: 20px;
-    &_position{
-      width: 100%;
-      height: 100%;
-        &_top-base{
-          width: 65px;
-          height: 65px;
-          border-radius: 15px;
-          background-color: #964b00;
-        }
-        &_right-base{
-          width: 65px;
-          height: 65px;
-          border-radius: 15px;
-          background-color: #964b00;
-          display: inline-block;
-          float: right;
-          position: relative;
-          bottom: 65px;
-        }
-        &_left-base{
-          width: 65px;
-          height: 65px;
-          border-radius: 15px;
-          background-color: #964b00;
-          display: inline-block;
-          position: relative;
-          top: 520px;
-          right: 230px;
-        }
-        &_home-base{
-          width: 65px;
-          height: 65px;
-          border-radius: 15px;
-          background-color: #964b00;
-          display: inline-block;
-          position: relative;
-          top: 520px;
-          left: 65px;
-          float: right;
-        }
-        &_pitcher-base{
-          
-        }
 
-        .game_pad{
-          // width: 175px;
-          width: auto;
-          height: auto;
-          transform: rotate(-45deg);
-          display: inline-block;
-          position: absolute;
-          
-          // top: 15px;
-          left: 170px;
-          bottom: 90px;
-          >h2{
-            text-align: center;
-            margin: 5px 0px;
+    .ground_back{
+      // width: 37%;
+      // height: 75%;
+      width: 650px;
+      height: 650px;
+      margin: 0 auto;
+      transform: rotate(45deg);
+      background-color: rgb(14, 114, 14);
+      border-radius: 50px;
+      position: relative;
+      top: 220px;
+      left: 20px;
+      &_position{
+        width: 100%;
+        height: 100%;
+          &_top-base{
+            width: 65px;
+            height: 65px;
+            border-radius: 15px;
+            background-color: #964b00;
+          }
+          &_right-base{
+            width: 65px;
+            height: 65px;
+            border-radius: 15px;
+            background-color: #964b00;
+            display: inline-block;
+            float: right;
+            position: relative;
+            bottom: 65px;
+          }
+          &_left-base{
+            width: 65px;
+            height: 65px;
+            border-radius: 15px;
+            background-color: #964b00;
+            display: inline-block;
+            position: relative;
+            top: 520px;
+            right: 230px;
+          }
+          &_home-base{
+            width: 65px;
+            height: 65px;
+            border-radius: 15px;
+            background-color: #964b00;
+            display: inline-block;
+            position: relative;
+            top: 520px;
+            left: 65px;
+            float: right;
+          }
+          &_pitcher-base{
+            
           }
 
-          &_text{
-            width: auto;
-            height: auto;
-            margin-bottom: 5px;
-            &_insert{
-              // width: 55px;
-              width: 70%;
-              height: 55px;
-              border: 1px solid gray;
-              font-size: 23px;
-              font-weight: 700;
-              margin: 0px 3px;
-              text-align: center;
-              border-radius: 5px;
-            }
+          .game_ground{
 
-            &_block{
+            width: 650px;
+            height: 650px;
+            margin: 0 auto;
+            position: absolute;
+            bottom: 0px;
+
+            .game_pad{
+              // width: 175px;
+              width: 100%;
+              height: 100%;
+              // width: auto;
+              // height: auto;
+              transform: rotate(-45deg);
+              display: inline-block;
               position: relative;
-              width: auto;
-              height: auto;
-              bottom: 130px;
-              
+              // top: 80px;
+              // top: 15px;
+              // left: 170px;
+              // bottom: 90px;
 
+              &_inner{
+                width: 300px;
+                height: auto;
+                min-height: 50%;
+                margin: 0 auto;
+              }
 
-              &_btn{
+              >h2{
+                text-align: center;
+                margin: 5px 0px;
+              }
+
+              &_text{
                 width: auto;
                 height: auto;
-                position: absolute;
-                // width: 40px;
-                top: 80px;
-                right: 45px;
+                margin-bottom: 5px;
 
-                &_icon{
-                  width: 40px;
+                &_insert{
+                  // width: 55px;
+                  width: 70%;
+                  height: 55px;
+                  border: 1px solid gray;
+                  font-size: 23px;
+                  font-weight: 700;
+                  margin: 0px 3px;
+                  text-align: center;
+                  border-radius: 5px;
                 }
+
+                &_block{
+                  position: relative;
+                  width: auto;
+                  height: auto;
+                  bottom: 130px;
+                  
+
+
+                  &_btn{
+                    width: auto;
+                    height: auto;
+                    position: absolute;
+                    // width: 40px;
+                    top: 80px;
+                    right: 45px;
+
+                    &_icon{
+                      width: 40px;
+                    }
+                  }
+                }
+              }
+
+              &_num_line{
+                text-align: center;
+                &_info_register{
+                  width: 100%;
+                  height: 50px;
+                  background-color: rgb(248, 188, 128);
+                  // color: rgb(231, 224, 224);
+                  color: #FFF;
+                  border: none;
+                  font-size: 25px;
+                  font-weight: 700;
+                  border-radius: 5px;
+                  margin-top: 5px;
+                  cursor: pointer;
+                }
+
+              }
+
+
+              .btn_num{
+                width: 50px;
+                height: 50px;
+                margin: 3px;
+                background-color: rosybrown;
+                font-size: 13px;
+                font-weight: 700;
+                color: azure;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
               }
             }
           }
 
-          &_num_line{
-            text-align: center;
-            &_info_register{
-              width: 100%;
+          .game_pad_second{
+            // width: auto;
+            width: 100%;
+            height: 100%;
+            // height: auto;
+            min-height: 100%;
+            transform: rotate(-45deg);
+            // display: inline-block;
+            display: flex;
+            align-items: center;
+            position: relative;
+            // width: 40%;
+            // top: 15px;
+            // left: 250px;
+            // bottom: 55px;
+            // top: 30px;
+            // padding: 30px;
+
+            
+
+            &_inner{
+              width: auto;
+              margin-bottom: 10px;
+              display: inline-flex;
+              &_text{
+                margin: 0 15px;
+                font-size: 25px;
+                font-weight: 700;
+              }
+            }
+
+            >h2{
+              text-align: center;
+              margin: 5px 0px;
+            }
+
+            &_text{
+              width: auto;
+              height: auto;
+              margin-bottom: 5px;
+              &_insert{
+                // width: 55px;
+                width: 70%;
+                height: 55px;
+                border: 1px solid gray;
+                font-size: 23px;
+                font-weight: 700;
+                margin: 0px 3px;
+                text-align: center;
+                border-radius: 5px;
+              }
+
+              &_block{
+                position: relative;
+                width: auto;
+                height: auto;
+                bottom: 130px;
+                
+
+
+                &_btn{
+                  width: auto;
+                  height: auto;
+                  position: absolute;
+                  // width: 40px;
+                  top: 80px;
+                  right: 45px;
+
+                  &_icon{
+                    width: 40px;
+                  }
+                }
+              }
+            }
+
+            &_num_line{
+              text-align: center;
+              &_info_register{
+                width: 100%;
+                height: 50px;
+                background-color: rgb(248, 188, 128);
+                // color: rgb(231, 224, 224);
+                color: #FFF;
+                border: none;
+                font-size: 25px;
+                font-weight: 700;
+                border-radius: 5px;
+                margin-top: 5px;
+                cursor: pointer;
+              }
+
+            }
+
+
+            .btn_num{
+              width: 50px;
               height: 50px;
-              background-color: rgb(248, 188, 128);
-              // color: rgb(231, 224, 224);
-              color: #FFF;
-              border: none;
-              font-size: 25px;
+              margin: 3px;
+              background-color: rosybrown;
+              font-size: 13px;
               font-weight: 700;
+              color: azure;
+              border: none;
               border-radius: 5px;
-              margin-top: 5px;
               cursor: pointer;
             }
+            
 
-          }
-
-
-          .btn_num{
-            width: 50px;
-            height: 50px;
-            margin: 3px;
-            background-color: rosybrown;
-            font-size: 13px;
-            font-weight: 700;
-            color: azure;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-          }
-        }
-
-        .game_pad_result{
-          width: auto;
-          height: auto;
-          transform: rotate(-45deg);
-          display: inline-block;
-          position: relative;
-          // top: 15px;
-          // left: 250px;
-          // bottom: 55px;
-          top: 90px;
-
-          &_inner{
-            width: auto;
-            margin-bottom: 10px;
-            display: inline-flex;
-            &_text{
-              margin: 0 15px;
-              font-size: 25px;
-              font-weight: 700;
-            }
           }
 
         }
-
       }
     }
   }
@@ -404,4 +523,5 @@
     font-weight: 700;
     border-radius: 5px;
     cursor: pointer;
+    z-index: 99;
   }

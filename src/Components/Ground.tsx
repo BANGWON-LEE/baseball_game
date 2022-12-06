@@ -121,50 +121,55 @@ const Ground: React.FC = () => {
     return(
         <div className="total_back">
             <TopBar teamName={teamName} homeTeamScore={homeTeamScore} awayTeamScore={awayTeamScore} />
-            <div className="ground_back">
-                <div className="ground_back_position">
-                    <div className="ground_back_position_top-base"/>
-                    <div className="player_located_first_base"/>
-                    <div className="ground_back_position_right-base"/>
-                    <div className="player_located_right_base"/>
-                    <div className="ground_back_position_left-base"/>
-                    <div className="player_located_left_base"/>
-                    <div className="ground_back_position_home-base"/>
-                    <div className="player_located_last_base home_color"/>
-                    <div className="ground_back_position_pitcher-base"/>
-                    {gameStatus === 1 &&
-                        <button className="game_start" onClick={gameStart}>게임시작</button>
-                    }
-                    <div className={` ${(myNumArray.length !== 3 && gameStatus === 2) || gameStatus === 3 ? "game_pad" : "game_pad_result" }`}>
-                        
-                        {gameStatus === 2 ?
-                        <>
-                            <h2>아웃 카운트 입력</h2>
-                            <MyOutNum myNumArray={myNumArray} />
-                        </>
-                            : gameStatus === 3 ?
-                            <>
-                                <h2>나의 아웃 카운트</h2>
-                                <MyOutNum myNumArray={determineMyOutNum} />
-                                <h2>공격 카운트 입력</h2>
-                                <MyAttackNum myNumArray={myNumArray} />
-                            </>
-                        : null
+            <div className="total_back_inner">
+                <div className="ground_back">
+                    <div className="ground_back_position">
+                        <div className="ground_back_position_top-base"/>
+                        <div className="player_located_first_base"/>
+                        <div className="ground_back_position_right-base"/>
+                        <div className="player_located_right_base"/>
+                        <div className="ground_back_position_left-base"/>
+                        <div className="player_located_left_base"/>
+                        <div className="ground_back_position_home-base"/>
+                        <div className="player_located_last_base home_color"/>
+                        <div className="ground_back_position_pitcher-base"/>
+                        {gameStatus === 1 &&
+                            <button className="game_start" onClick={gameStart}>게임시작</button>
                         }
-                        {(gameStatus === 2 && myNumArray.length !== 3 )  ?
-                            <ChoiceOutNumberPad deleteNum={deleteNum} cntText={cntText} setCntText={setCntText} selectNum={selectNum} myNumArray={myNumArray} />
-                            : null                        }
-                        { gameStatus === 3 ?
-                            <ChoiceAttackNumberPad deleteNum={deleteNum} cntText={cntText} setCntText={setCntText} selectNum={selectNum} myNumArray={myNumArray} />
-                        : null }           
-                        {gameStatus === 2 || gameStatus === 3 ?
-                        <div className="game_pad_num_line">
-                            {myNumArray.length !== 3  && <button className="game_pad_num_line_info_register" onClick={() => toPrevNum()}>이전</button>}
-                            {myNumArray.length < 3 && <button className="game_pad_num_line_info_register" onClick={() => toNextNum()}>다음</button>}
-                            {myNumArray.length === 3 && <button className="game_pad_num_line_info_register" onClick={()=> determineMyOutNum.length !== 3 ? determineOutNum() : determineAttackNum()}>등록</button>}
+                        <div className="game_ground">
+                            <div className={` ${(myNumArray.length !== 3 && gameStatus === 2) || gameStatus === 3 && !determineMyOutNum ? "game_pad" : "game_pad_second" }`}>
+                                <div className="game_pad_inner">
+                                    {gameStatus === 2 ?
+                                    <>
+                                        <h2>아웃 카운트 입력</h2>
+                                        <MyOutNum myNumArray={myNumArray} />
+                                    </>
+                                        : gameStatus === 3 ?
+                                        <>
+                                            <h2>나의 아웃 카운트</h2>
+                                            <MyOutNum myNumArray={determineMyOutNum} />
+                                            <h2>공격 카운트 입력</h2>
+                                            <MyAttackNum myNumArray={myNumArray} />
+                                        </>
+                                    : null
+                                    }
+                                    {(gameStatus === 2 && myNumArray.length !== 3 )  ?
+                                        <ChoiceOutNumberPad deleteNum={deleteNum} cntText={cntText} setCntText={setCntText} selectNum={selectNum} myNumArray={myNumArray} />
+                                        : null                        }
+                                    { gameStatus === 3 ?
+                                        <ChoiceAttackNumberPad deleteNum={deleteNum} cntText={cntText} setCntText={setCntText} selectNum={selectNum} myNumArray={myNumArray} />
+                                    : null }           
+                                    {gameStatus === 2 || gameStatus === 3 ?
+                                    <div className="game_pad_num_line">
+                                        {myNumArray.length !== 3  && <button className="game_pad_num_line_info_register" onClick={() => toPrevNum()}>이전</button>}
+                                        {myNumArray.length < 3 && <button className="game_pad_num_line_info_register" onClick={() => toNextNum()}>다음</button>}
+                                        {myNumArray.length === 3 && <button className="game_pad_num_line_info_register" onClick={()=> determineMyOutNum.length !== 3 ? determineOutNum() : determineAttackNum()}>등록</button>}
+                                    </div>
+                                    : null    
+                                }
+                                </div>
+                            </div>
                         </div>
-                        : null    
-                    }
                     </div>
                 </div>
             </div>
@@ -308,7 +313,7 @@ const ChoiceAttackNumberPad = ({deleteNum, cntText, setCntText, selectNum, myNum
     
     return(
         <>
-        <div className="game_pad_text">
+        <div className="game_pad_second_text">
             <input 
                 type="text"  
                 onChange={(e) => setCntText(e.target.value)} 
@@ -323,14 +328,14 @@ const ChoiceAttackNumberPad = ({deleteNum, cntText, setCntText, selectNum, myNum
                 // }
                 }}
             />
-            <div className="game_pad_text_block">
-                <button className="game_pad_text_block_btn" onClick={() => deleteNum()}>
-                    <img src={closeBtn}  alt={'close'} className="game_pad_text_block_btn_icon" />
+            <div className="game_pad_second_text_block">
+                <button className="game_pad_second_text_block_btn" onClick={() => deleteNum()}>
+                    <img src={closeBtn}  alt={'close'} className="game_pad_second_text_block_btn_icon" />
                 </button>
             </div>
         </div>
     { numObject.num.map((data, index) => (
-        <div className="game_pad_num_line" key={"btn_key" + index}>
+        <div className="game_pad_second_num_line" key={"btn_key" + index}>
             {data.no1 !=="" && <button className="btn_num" onClick={selectNum} value={`${data.no1}`} disabled={myNumArray.length === 3 ? true : false}>{ data.no1 }</button>}
                 <button className="btn_num" onClick={selectNum} value={`${data.no2}`} disabled={myNumArray.length === 3 ? true : false} >{data.no2}</button>
             {data.no3 !== "" &&  <button className="btn_num" onClick={selectNum} value={`${data.no3}`} disabled={myNumArray.length === 3 ? true : false} >{data.no3}</button>}
@@ -343,10 +348,10 @@ const ChoiceAttackNumberPad = ({deleteNum, cntText, setCntText, selectNum, myNum
 const MyOutNum = ({myNumArray}: any) => {
 
     return(
-        <div className="game_pad_result_inner">
-            <div className="game_pad_result_inner_text">{myNumArray[0]}</div>
-            <div className="game_pad_result_inner_text">{myNumArray[1]}</div>
-            <div className="game_pad_result_inner_text">{myNumArray[2]}</div>
+        <div className="game_pad_second_inner">
+            <div className="game_pad_second_inner_text">{myNumArray[0]}</div>
+            <div className="game_pad_second_inner_text">{myNumArray[1]}</div>
+            <div className="game_pad_second_inner_text">{myNumArray[2]}</div>
         </div>
     )
 }
@@ -355,10 +360,10 @@ const MyOutNum = ({myNumArray}: any) => {
 const MyAttackNum = ({myNumArray}: any) => {
 
     return(
-        <div className="game_pad_result_inner">
-            <div className="game_pad_result_inner_text">{myNumArray[0]}</div>
-            <div className="game_pad_result_inner_text">{myNumArray[1]}</div>
-            <div className="game_pad_result_inner_text">{myNumArray[2]}</div>
+        <div className="game_pad_second_inner">
+            <div className="game_pad_second_inner_text">{myNumArray[0]}</div>
+            <div className="game_pad_second_inner_text">{myNumArray[1]}</div>
+            <div className="game_pad_second_inner_text">{myNumArray[2]}</div>
         </div>
     )
 }
