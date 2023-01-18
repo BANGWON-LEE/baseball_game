@@ -1,46 +1,29 @@
-# Getting Started with Create React App
+<h2>야구 게임</h2>
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+규칙
+- 1~15까지의 숫자가 있다.
+- 이 사이에서 안타 또는 홈런 카운트 3개를 뽑는다.
+- 똑같이 아웃카운트 3개를 뽑는다.
+- 게임은 야구의 방식과 똑같이 한 회차에 숫자를 3번 부른다.
 
-## Available Scripts
+ 1. 안타
+상대방이 부른 숫자가, 같은 자리 같은 숫자면 1안타이다.
+만약 같은 다리 같은 숫자가 2개면 2루타이다.
 
-In the project directory, you can run:
+2. 홈런
+상대방이 부른 숫자가, 다같으면 홈런이다.
+(3개의 숫자의 자리 값이 다 같으면 홈런)
+홈런은 곧 게임 종료를 의미한다.
 
-### `npm start`
+3. 스트라이크
+상대방이 부른 숫자 다 다를 때 1 스트라이크다. (자릿 수 포함)
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+4. 볼
+상대방이 부른 숫자가 자리는 다르지만 값이 같을 때는 1볼이다.
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+5. 상대방이 부른 숫자 중 아웃카운트가 숫자만 일치하더라도 아웃으로 나온다.
 
-### `npm test`
+6. 게임 종료
+회차는 아직 미정, 홈런을 치면 게임 종료할 예정
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
