@@ -27,20 +27,15 @@ const Ground: React.FC = () => {
         setGameStatus(gameStatus + 1)
     }
 
-        // 새로고침 시에 등장할 경고문구
-    const alertUser = (event: any) => {
-        event.preventDefault();
-        event.returnValue = "";
-    }
-
-    // 새로고침 시에 등장할 경고문구
+    // 새로고침 경고 관련 코드
     useEffect(() => {
-        window.addEventListener("beforeunload", alertUser);
-        return () => {
-            window.removeEventListener("beforeunload", alertUser);
-        };
-        
-    }, []);
+        window.addEventListener('beforeunload', (event) => {
+            // 표준에 따라 기본 동작 방지
+            event.preventDefault();
+            // Chrome에서는 returnValue 설정이 필요함
+            event.returnValue = '게임이 초기화 될 수 있습니다.';
+        });
+    })
 
 
     // 계산기 버튼 클릭시 보여지는 부분 정리
@@ -93,10 +88,7 @@ const Ground: React.FC = () => {
     const [rivalNum, setRivalNum] = useState<string[]>([])
     // const [determineMyAttackNum, setDetermineMyAttackNum] = useState<string[]>([])
 
-    const determineOutNum = () => {
-        // console.log('deter')
-        setDetermineMyOutNum(JSON.parse(JSON.stringify(myNumArray)))
-        // 난수 3개를 담기 위한 로직
+    const rivalOutNumCreate = () =>{
         let rivalArr : string[] = []
         for(let i = 0; i<=2; i++){
             let randomNum = Math.floor(Math.random() * (15-1)+1).toString()
@@ -104,9 +96,18 @@ const Ground: React.FC = () => {
             console.log('i-- 2', randomNum)
         }
         setRivalNum(rivalArr)
+        return
+    } 
+
+    const determineOutNum = () => {
+        // console.log('deter')
+        setDetermineMyOutNum(JSON.parse(JSON.stringify(myNumArray)))
+        // 난수 3개를 담기 위한 로직
+        rivalOutNumCreate();
         setMyNumArray([])
         setGameStatus(gameStatus + 1)
     }
+
 
 
     const determineAttackNum = () => {
