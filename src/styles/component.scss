@@ -119,6 +119,19 @@
     margin: 0 auto;
     text-align: center;
 
+    &_game_round{
+      // height: 30px;
+    position: relative;
+    padding: 15px 5px;
+    width: 100px;
+    font-size: 20px;
+    margin: 0 auto;
+      &_text{
+        margin: 0 auto;
+        padding-left: 35%;
+      }
+    }
+
     &_detail{
       height: auto;
       height: 30px;
@@ -131,7 +144,7 @@
         // display: inline-block;
         position: absolute;
         top: 4%;
-        right: 42%;
+        left: 42%;
         width: auto;
         min-width: 10%;
         transform: translate(-85%, 45%);
@@ -356,6 +369,8 @@
             display: flex;
             align-items: center;
             position: relative;
+            bottom: 50px;
+            right: 50px;
             // width: 40%;
             // top: 15px;
             // left: 250px;
