@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import '../styles/component.scss'
 import closeBtn from "../asset/png/close_btn.png"
+import { parse } from "node:path/win32";
 
 
 
@@ -11,8 +12,9 @@ const Ground: React.FC = () => {
     const teamName = searchParams.get('team');
     const [gameStatus, setGameStatus] = useState<number>(1)
     const [cntText, setCntText] = useState<string>('')
-    const [homeTeamScore, setHomeTeamScore] = useState<Number>(0)
-    const [awayTeamScore, setAwayTeamScore] = useState<Number>(0)
+    const [homeTeamScore, setHomeTeamScore] = useState<number>(0)
+    const [awayTeamScore, setAwayTeamScore] = useState<number>(0)
+    const [gameRound, setGameRound] = useState<string>('1')
 
     const  [myNumArray, setMyNumArray] = useState<string[]>([]) // 숫자 배열
 
@@ -86,7 +88,7 @@ const Ground: React.FC = () => {
 
     const [determineMyOutNum, setDetermineMyOutNum] = useState<string[]>([])
     const [rivalNum, setRivalNum] = useState<string[]>([])
-    // const [determineMyAttackNum, setDetermineMyAttackNum] = useState<string[]>([])
+
 
     const rivalOutNumCreate = () =>{
         let rivalArr : string[] = []
@@ -109,20 +111,51 @@ const Ground: React.FC = () => {
     }
 
 
+    const [determineMyAttackNum, setDetermineMyAttackNum] = useState<string[]>([])
 
     const determineAttackNum = () => {
-        const attackNum = JSON.parse(JSON.stringify(myNumArray))
-
+        setDetermineMyAttackNum(JSON.parse(JSON.stringify(myNumArray)))
+        // setGameRound(gameRound+0.5);
+        // matchAttackNumAndOutNum();
     }
+
+    // const [matchResultCnt, setMatchResultCnt] = useState<number>(1);
+    const [matchResultMessage, setMatchResultMessage] = useState<string>('');
+
+
+    const ScoreCheck = (matchResultCnt:number) => {
+        if(matchResultCnt === 4){
+            if(gameRound === '1'){
+                setHomeTeamScore(homeTeamScore + 1);
+            }
+        }
+    }
+
+    useEffect(() => {
+        let matchResultCnt : number = 0;
+
+        for(let i = 0; i<=2; i++){
+            if(rivalNum[i] === determineMyAttackNum[i]){
+         
+                matchResultCnt += 1;
+                console.log('안타 카운트', matchResultCnt)
+            }
+        }
+        setMatchResultMessage(`${matchResultCnt} 안타!!` )
+        ScoreCheck(matchResultCnt)
+        
+
+    },[determineAttackNum])
     
-    console.log('determineMyOutNum', determineMyOutNum)
-    const [gameRound, setGameRound] = useState<string>('0')
+    // console.log('determineMyOutNum', determineMyOutNum)
+
     console.log('rivalNum', rivalNum)
 
     return(
         <div className="total_back">
-            <TopBar teamName={teamName} homeTeamScore={homeTeamScore} awayTeamScore={awayTeamScore} />
+            <TopBar teamName={teamName} homeTeamScore={homeTeamScore} awayTeamScore={awayTeamScore} gameRound={gameRound} />
             <div className="total_back_inner">
+            <p>{matchResultMessage}</p>
                 <div className="ground_back">
                     <div className="ground_back_position">
                         <div className="ground_back_position_top-base"/>
@@ -180,9 +213,16 @@ const Ground: React.FC = () => {
 
 export default Ground;
 
-const TopBar = ({teamName, homeTeamScore, awayTeamScore}: any)  => {
+const TopBar = ({teamName, homeTeamScore, awayTeamScore, gameRound}: any)  => { 
+
+
     return(
         <div className="game_board">
+            <div className="game_board_game_round">
+                <p className="game_board_game_round_text">
+                    {Math.floor(gameRound)}회 {gameRound - gameRound !== 0 ? " 말" : " 초"}
+                </p>
+            </div>
             <div className="game_board_detail">
                 <div className="game_board_detail_home">
                     <span className="game_board_detail_team home-team">{teamName}</span>
