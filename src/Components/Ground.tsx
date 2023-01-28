@@ -1,9 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React, { createContext, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import '../styles/component.scss'
 import closeBtn from "../asset/png/close_btn.png"
-import { parse } from "node:path/win32";
+// import { parse } from "node:path/win32";
 
+import io from "socket.io-client";
+// import { SOCKET_URL } from "config";
+
+const socket = io('http://localhost:5000');
+export const SocketContext = createContext;
 
 
 const Ground: React.FC = () => {
@@ -15,8 +20,47 @@ const Ground: React.FC = () => {
     const [homeTeamScore, setHomeTeamScore] = useState<number>(0)
     const [awayTeamScore, setAwayTeamScore] = useState<number>(0)
     const [gameRound, setGameRound] = useState<string>('1')
+    const [rivalTeamName, setRivalTeamName] = useState<string>('');
 
     const  [myNumArray, setMyNumArray] = useState<string[]>([]) // 숫자 배열
+
+
+    useEffect(() =>  {
+        socket.emit('teamName', teamName);
+  
+           console.log('socket', socket)
+       
+
+        // socket.emit('add user', nickname);
+        
+        const checkSocket = async() =>{
+            socket.on('responseTeamName', (data) => {
+                console.log('teamF', data)
+                if(teamName !== data){
+                    setRivalTeamName(data);
+                }
+            });
+        }
+
+        checkSocket();
+
+        // socket.on('user joined', (data) =>{
+        //   setchats(chats.concat(`${data.username} joined`));
+        // })
+        // socket.on('user left', (data) => {
+        //   setchats(chats.concat(`${data.username} left`));
+        // });
+        // socket.on('disconnect', () => {
+        //   setIsConnected(false);
+        // });
+        // socket.on('new message', (data) => {
+        //   setchats(chats.concat(`${data.username} : ${data.message}`));
+        // });
+
+      });
+    
+
+
 
     const gameStart = () : void => {
         
@@ -112,11 +156,20 @@ const Ground: React.FC = () => {
 
 
     const [determineMyAttackNum, setDetermineMyAttackNum] = useState<string[]>([])
+    
+    let gameSetCnt : number = 0;
+    let matchResultCnt : number = 0;
 
     const determineAttackNum = () => {
         setDetermineMyAttackNum(JSON.parse(JSON.stringify(myNumArray)))
-        // setGameRound(gameRound+0.5);
+        gameSetCnt+=1
+        
         // matchAttackNumAndOutNum();
+        if(gameSetCnt === 5){
+            setGameRound(gameRound+0.5);
+            matchResultCnt = 0;
+            gameSetCnt = 0;
+        }
     }
 
     // const [matchResultCnt, setMatchResultCnt] = useState<number>(1);
@@ -132,18 +185,40 @@ const Ground: React.FC = () => {
     }
 
     useEffect(() => {
-        let matchResultCnt : number = 0;
+    
+        let ballCnt : number = 0;
 
         for(let i = 0; i<=2; i++){
             if(rivalNum[i] === determineMyAttackNum[i]){
          
                 matchResultCnt += 1;
+                setMatchResultMessage(`${matchResultCnt} 안타!!` )
                 console.log('안타 카운트', matchResultCnt)
-            }
+            } else if(rivalNum[i] !== determineMyAttackNum[i]){
+                matchResultCnt += 1;
+                // for(let j = 0; j< rivalNum.length; j++){
+                //     if(determineMyAttackNum[j] === rivalNum[i]){
+                //         ballCnt+=1;
+                //     }
+                // }
+                setMatchResultMessage(`${matchResultCnt} 스트라이크` )
+            } 
         }
-        setMatchResultMessage(`${matchResultCnt} 안타!!` )
+
+        // if(matchResultCnt === 3){
+        //     alert('게임이 끝났습니다.')
+        //     if(homeTeamScore > awayTeamScore){
+        //         alert(`${teamName}이 승리했습니다.`);
+        //     }else if(homeTeamScore < awayTeamScore){
+        //         alert(`너네 야구단팀이 승리했습니다.`);
+        //     }else if(homeTeamScore === awayTeamScore){
+        //         alert("무승부 입니다.")
+        //     }
+        // } 
+
+        // setMatchResultMessage(`${matchResultCnt} 안타!!` )
         ScoreCheck(matchResultCnt)
-        
+        matchResultCnt = 0;
 
     },[determineAttackNum])
     
@@ -151,11 +226,12 @@ const Ground: React.FC = () => {
 
     console.log('rivalNum', rivalNum)
 
+
     return(
         <div className="total_back">
-            <TopBar teamName={teamName} homeTeamScore={homeTeamScore} awayTeamScore={awayTeamScore} gameRound={gameRound} />
+            <TopBar teamName={teamName} homeTeamScore={homeTeamScore} awayTeamScore={awayTeamScore} gameRound={gameRound} rivalTeamName={rivalTeamName} />
             <div className="total_back_inner">
-            <p>{matchResultMessage}</p>
+            <p className="total_back_situation">{determineMyAttackNum[0] !== undefined ? matchResultMessage : null}</p>
                 <div className="ground_back">
                     <div className="ground_back_position">
                         <div className="ground_back_position_top-base"/>
@@ -213,7 +289,7 @@ const Ground: React.FC = () => {
 
 export default Ground;
 
-const TopBar = ({teamName, homeTeamScore, awayTeamScore, gameRound}: any)  => { 
+const TopBar = ({teamName, homeTeamScore, awayTeamScore, gameRound, rivalTeamName}: any)  => { 
 
 
     return(
@@ -231,7 +307,7 @@ const TopBar = ({teamName, homeTeamScore, awayTeamScore, gameRound}: any)  => {
                 <span className="game_board_detail_vs">VS</span>
                 <div className="game_board_detail_away">
                     <span className="game_board_detail_score away-team">{awayTeamScore}</span>
-                    <span className="game_board_detail_team away-team">너네 야구단</span>
+                    <span className="game_board_detail_team away-team">{rivalTeamName}</span>
                 </div>
             </div>
         </div>

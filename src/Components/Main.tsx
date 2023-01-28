@@ -1,6 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, createContext } from "react";
 import { Link, useRoutes } from "react-router-dom";
 import '../styles/component.scss'
+
+import io from "socket.io-client";
+export const socket = io('localhost:5000');
+
+export const SocketContext = createContext ;
 
 const Main: React.FC = () => {
 
@@ -9,6 +14,8 @@ const Main: React.FC = () => {
   const [resultName, setResultName] = useState<Boolean>(false);
   
   const registerTeam = () : void => {
+ 
+
     setResultName(true);
   }
   const changeTeamName = () : void => {
