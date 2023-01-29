@@ -15,14 +15,21 @@ const Ground: React.FC = () => {
 
     const [searchParams] = useSearchParams();
     const teamName = searchParams.get('team');
+    const teamOriginId = searchParams.get('id');
+    const [teamReady,setTeamReady] = useState<string[]>([])
+    const [teamTurn, setTeamTurn] = useState<number>(0);
     const [gameStatus, setGameStatus] = useState<number>(1)
     const [cntText, setCntText] = useState<string>('')
     const [homeTeamScore, setHomeTeamScore] = useState<number>(0)
     const [awayTeamScore, setAwayTeamScore] = useState<number>(0)
-    const [gameRound, setGameRound] = useState<string>('1')
+    const [gameRound, setGameRound] = useState<number>(1)
     const [rivalTeamName, setRivalTeamName] = useState<string>('');
+    const [rivalNum, setRivalNum] = useState<string[]>([])
+
+    const [attackTeam, setAttackTeam] = useState<string>('');
 
     const  [myNumArray, setMyNumArray] = useState<string[]>([]) // 숫자 배열
+
 
 
     useEffect(() =>  {
@@ -39,6 +46,20 @@ const Ground: React.FC = () => {
                 if(teamName !== data){
                     setRivalTeamName(data);
                 }
+            });
+            socket.on('gameScore', (data) => {
+                console.log('teamF', data)
+                setAwayTeamScore(data);
+            });
+            socket.on('Attack', (data) => {
+                console.log('teamF', data)
+                setRivalNum(data);
+            });
+            socket.on('teamReady', (data) => {
+                console.log('teamReady', data)
+          
+                setTeamReady(teamReady.concat(data));
+                
             });
         }
 
@@ -131,69 +152,54 @@ const Ground: React.FC = () => {
     }
 
     const [determineMyOutNum, setDetermineMyOutNum] = useState<string[]>([])
-    const [rivalNum, setRivalNum] = useState<string[]>([])
+
+    console.log('deter', teamReady);
 
 
     const rivalOutNumCreate = () =>{
         let rivalArr : string[] = []
-        for(let i = 0; i<=2; i++){
-            let randomNum = Math.floor(Math.random() * (15-1)+1).toString()
-            rivalArr.push(randomNum)
-            console.log('i-- 2', randomNum)
-        }
+        // for(let i = 0; i<=2; i++){
+        //     let randomNum = Math.floor(Math.random() * (15-1)+1).toString()
+        //     rivalArr.push(randomNum)
+        //     console.log('i-- 2', randomNum)
+        // }
         setRivalNum(rivalArr)
         return
     } 
 
+    let teamId = 1
     const determineOutNum = () => {
+       
         // console.log('deter')
         setDetermineMyOutNum(JSON.parse(JSON.stringify(myNumArray)))
+  
         // 난수 3개를 담기 위한 로직
         rivalOutNumCreate();
         setMyNumArray([])
         setGameStatus(gameStatus + 1)
+        socket.emit('teamReady', 'true');
+        teamId += 0.5;
+        console.log('234234')
     }
 
+    console.log('team',teamReady);
 
     const [determineMyAttackNum, setDetermineMyAttackNum] = useState<string[]>([])
-    
-    let gameSetCnt : number = 0;
-    let matchResultCnt : number = 0;
 
-    const determineAttackNum = () => {
-        setDetermineMyAttackNum(JSON.parse(JSON.stringify(myNumArray)))
-        gameSetCnt+=1
-        
-        // matchAttackNumAndOutNum();
-        if(gameSetCnt === 5){
-            setGameRound(gameRound+0.5);
-            matchResultCnt = 0;
-            gameSetCnt = 0;
-        }
-    }
-
-    // const [matchResultCnt, setMatchResultCnt] = useState<number>(1);
-    const [matchResultMessage, setMatchResultMessage] = useState<string>('');
-
-
-    const ScoreCheck = (matchResultCnt:number) => {
-        if(matchResultCnt === 4){
-            if(gameRound === '1'){
-                setHomeTeamScore(homeTeamScore + 1);
-            }
-        }
-    }
-
-    useEffect(() => {
-    
-        let ballCnt : number = 0;
+    const gameBtn = () => {
+        let gameScore : number = 0;
 
         for(let i = 0; i<=2; i++){
             if(rivalNum[i] === determineMyAttackNum[i]){
          
                 matchResultCnt += 1;
                 setMatchResultMessage(`${matchResultCnt} 안타!!` )
-                console.log('안타 카운트', matchResultCnt)
+                if(matchResultCnt % 3 === 0 && (gameRound - 0.5 < gameRound ) ){
+                    gameScore+=1;
+                    socket.emit('gameScore', gameScore);
+                    setHomeTeamScore(gameScore);
+                }
+                // console.log('안타 카운트', matchResultCnt)
             } else if(rivalNum[i] !== determineMyAttackNum[i]){
                 matchResultCnt += 1;
                 // for(let j = 0; j< rivalNum.length; j++){
@@ -217,16 +223,54 @@ const Ground: React.FC = () => {
         // } 
 
         // setMatchResultMessage(`${matchResultCnt} 안타!!` )
-        ScoreCheck(matchResultCnt)
+        // ScoreCheck(matchResultCnt)
         matchResultCnt = 0;
+    }
+    
 
-    },[determineAttackNum])
+
+    // const [matchResultCnt, setMatchResultCnt] = useState<number>(1);
+    const [matchResultMessage, setMatchResultMessage] = useState<string>('');
+
+
+    // const ScoreCheck = (matchResultCnt:number) => {
+    //     if(matchResultCnt === 3){
+    //         if(gameRound === 1){
+    //             setHomeTeamScore(homeTeamScore + 1);
+    //         }
+    //     }
+    // }
+
+    useEffect(() => {
+        socket.emit('Attack', determineMyAttackNum);
+
+
+    },[determineMyAttackNum])
     
     // console.log('determineMyOutNum', determineMyOutNum)
 
     console.log('rivalNum', rivalNum)
+    console.log('gameRound', gameRound)
+    console.log('gameRound2', teamOriginId === gameRound.toString())
+    // let gameSetCnt : number = 0;
+    const [gameSetCnt, setGameSetCnt] =useState<number>(0);
+    let matchResultCnt : number = 0;
 
-
+    const determineAttackNum = () => {
+        setDetermineMyAttackNum(JSON.parse(JSON.stringify(myNumArray)))
+        setGameSetCnt(gameSetCnt+1);
+        gameBtn();
+        // matchAttackNumAndOutNum();
+        if(gameSetCnt === 3){
+            setGameRound(gameRound+0.5);
+            setAttackTeam(rivalTeamName);
+            matchResultCnt = 0;
+          setGameSetCnt(0);
+        }
+    
+        myNumArray.length = 0;
+    }
+    console.log('gameSetCnt',gameSetCnt)
     return(
         <div className="total_back">
             <TopBar teamName={teamName} homeTeamScore={homeTeamScore} awayTeamScore={awayTeamScore} gameRound={gameRound} rivalTeamName={rivalTeamName} />
@@ -243,7 +287,8 @@ const Ground: React.FC = () => {
                         <div className="ground_back_position_home-base"/>
                         <div className="player_located_last_base home_color"/>
                         <div className="ground_back_position_pitcher-base"/>
-                        {gameStatus === 1 &&
+                        {gameStatus === 1 && 
+                        rivalTeamName !== undefined &&
                             <button className="game_start" onClick={gameStart}>게임시작</button>
                         }
                         <div className="game_ground">
@@ -266,14 +311,18 @@ const Ground: React.FC = () => {
                                     {(gameStatus === 2 && myNumArray.length !== 3 )  ?
                                         <ChoiceOutNumberPad deleteNum={deleteNum} cntText={cntText} setCntText={setCntText} selectNum={selectNum} myNumArray={myNumArray} />
                                         : null                        }
-                                    { gameStatus === 3 ?
+                                    { gameStatus === 3 && teamReady[1] !== undefined ?
                                         <ChoiceAttackNumberPad deleteNum={deleteNum} cntText={cntText} setCntText={setCntText} selectNum={selectNum} myNumArray={myNumArray} />
-                                    : null }           
+                                    : gameStatus === 3 && myNumArray.length === 3 && teamReady[0] === undefined ?  <h4>상대방이 아웃카운트를 정하고 있습니다. 잠시만 기다려주세요</h4> : null }    
+                                         {/* {myNumArray.length === 3 && teamReady[0] === undefined ?  <h4>상대방이 아웃카운트를 정하고 있습니다. 잠시만 기다려주세요</h4> : null}        */}
                                     {gameStatus === 2 || gameStatus === 3 ?
                                     <div className="game_pad_num_line">
                                         {myNumArray.length !== 3  && <button className="game_pad_num_line_info_register" onClick={() => toPrevNum()}>이전</button>}
-                                        {myNumArray.length < 3 && <button className="game_pad_num_line_info_register" onClick={() => toNextNum()}>다음</button>}
-                                        {myNumArray.length === 3 && <button className="game_pad_num_line_info_register" onClick={()=> determineMyOutNum.length !== 3 ? determineOutNum() : determineAttackNum()}>등록</button>}
+                                        {myNumArray.length < 3 && <button className="game_pad_num_line_info_register" onClick={() =>  toNextNum() }>다음</button>}
+                                        {myNumArray.length === 3 && teamReady[0] === undefined && teamOriginId === '1' ? <button className="game_pad_num_line_info_register"  onClick={()=> determineMyOutNum.length !== 3 && teamReady[0] === undefined && teamOriginId === '1' ? determineOutNum() :  alert('상대방을 기다려주세요1.')}>등록</button> : null}
+                                        {/* {myNumArray.length === 3 && teamReady[0] === undefined ?  <h4>상대방이 아웃카운트를 정하고 있습니다. 잠시만 기다려주세요</h4> : null} */}
+                                        {myNumArray.length === 3 && teamReady[1] === undefined && teamOriginId === '1.5' ? <button className="game_pad_num_line_info_register"  onClick={()=> determineMyOutNum.length !== 3 && teamReady[0] !== undefined && teamOriginId === '1.5' ? determineOutNum() :  alert('상대방을 기다려주세요2.')}>등록</button> : null}
+                                        {myNumArray.length === 3 && teamReady[1] !== undefined ? <button className="game_pad_num_line_info_register"  onClick={()=> determineMyOutNum.length === 3 &&  teamOriginId === gameRound.toString() ? determineAttackNum():  alert('본인의 차례가 아니입니다.')}>등록</button> : null}
                                     </div>
                                     : null    
                                 }
@@ -296,7 +345,7 @@ const TopBar = ({teamName, homeTeamScore, awayTeamScore, gameRound, rivalTeamNam
         <div className="game_board">
             <div className="game_board_game_round">
                 <p className="game_board_game_round_text">
-                    {Math.floor(gameRound)}회 {gameRound - gameRound !== 0 ? " 말" : " 초"}
+                    {Math.floor(gameRound)}회 {gameRound - 0.5 < Math.floor(gameRound) ? " 초" : " 말"}
                 </p>
             </div>
             <div className="game_board_detail">
