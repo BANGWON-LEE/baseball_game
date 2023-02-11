@@ -17,7 +17,7 @@ const Ground: React.FC = () => {
     const teamName = searchParams.get('team');
     const teamOriginId = searchParams.get('id');
     const [teamReady,setTeamReady] = useState<string[]>([])
-    const [teamTurn, setTeamTurn] = useState<number>(0);
+    // const [teamTurn, setTeamTurn] = useState<number>(0);
     const [gameStatus, setGameStatus] = useState<number>(1)
     const [cntText, setCntText] = useState<string>('')
     const [homeTeamScore, setHomeTeamScore] = useState<number>(0)
@@ -28,9 +28,9 @@ const Ground: React.FC = () => {
 
     const [attackTeam, setAttackTeam] = useState<string>('');
 
-    const  [myNumArray, setMyNumArray] = useState<string[]>([]) // 숫자 배열
-
-
+    const [myNumArray, setMyNumArray] = useState<string[]>([]) // 숫자 배열
+    const [totalSituation, setTotalSituation] = useState<string>('')
+    const [matchResultMessage, setMatchResultMessage] = useState<string>('');
 
     useEffect(() =>  {
         socket.emit('teamName', teamName);
@@ -59,6 +59,12 @@ const Ground: React.FC = () => {
                 console.log('teamReady', data)
           
                 setTeamReady(teamReady.concat(data));
+                
+            });
+            socket.on('situation', (data) => {
+                console.log('situation', data)
+          
+                setMatchResultMessage(data);
                 
             });
         }
@@ -103,10 +109,6 @@ const Ground: React.FC = () => {
             event.returnValue = '게임이 초기화 될 수 있습니다.';
         });
     })
-
-
-    // 계산기 버튼 클릭시 보여지는 부분 정리
-    // const [selectedNum, setSelectedNum] = useState<string>('')
 
     const selectNum = (event:any) :void => {
         const numberChoice = event.currentTarget.value
@@ -156,25 +158,26 @@ const Ground: React.FC = () => {
     console.log('deter', teamReady);
 
 
-    const rivalOutNumCreate = () =>{
-        let rivalArr : string[] = []
-        // for(let i = 0; i<=2; i++){
-        //     let randomNum = Math.floor(Math.random() * (15-1)+1).toString()
-        //     rivalArr.push(randomNum)
-        //     console.log('i-- 2', randomNum)
-        // }
-        setRivalNum(rivalArr)
-        return
-    } 
+    // const rivalOutNumCreate = () =>{
+    //     let rivalArr : string[] = []
+    //     // for(let i = 0; i<=2; i++){
+    //     //     let randomNum = Math.floor(Math.random() * (15-1)+1).toString()
+    //     //     rivalArr.push(randomNum)
+    //     //     console.log('i-- 2', randomNum)
+    //     // }
+    //     // setRivalNum(rivalArr)
+    //     // return
+    // } 
 
     let teamId = 1
+  
     const determineOutNum = () => {
        
         // console.log('deter')
         setDetermineMyOutNum(JSON.parse(JSON.stringify(myNumArray)))
   
         // 난수 3개를 담기 위한 로직
-        rivalOutNumCreate();
+        // rivalOutNumCreate();
         setMyNumArray([])
         setGameStatus(gameStatus + 1)
         socket.emit('teamReady', 'true');
@@ -186,55 +189,10 @@ const Ground: React.FC = () => {
 
     const [determineMyAttackNum, setDetermineMyAttackNum] = useState<string[]>([])
 
-    const gameBtn = () => {
-        let gameScore : number = 0;
+    // const [matchHitCnt, setMatchHitCnt] = useState<number>(1);
 
-        for(let i = 0; i<=2; i++){
-            if(rivalNum[i] === determineMyAttackNum[i]){
-         
-                matchResultCnt += 1;
-                setMatchResultMessage(`${matchResultCnt} 안타!!` )
-                if(matchResultCnt % 3 === 0 && (gameRound - 0.5 < gameRound ) ){
-                    gameScore+=1;
-                    socket.emit('gameScore', gameScore);
-                    setHomeTeamScore(gameScore);
-                }
-                // console.log('안타 카운트', matchResultCnt)
-            } else if(rivalNum[i] !== determineMyAttackNum[i]){
-                matchResultCnt += 1;
-                // for(let j = 0; j< rivalNum.length; j++){
-                //     if(determineMyAttackNum[j] === rivalNum[i]){
-                //         ballCnt+=1;
-                //     }
-                // }
-                setMatchResultMessage(`${matchResultCnt} 스트라이크` )
-            } 
-        }
-
-        // if(matchResultCnt === 3){
-        //     alert('게임이 끝났습니다.')
-        //     if(homeTeamScore > awayTeamScore){
-        //         alert(`${teamName}이 승리했습니다.`);
-        //     }else if(homeTeamScore < awayTeamScore){
-        //         alert(`너네 야구단팀이 승리했습니다.`);
-        //     }else if(homeTeamScore === awayTeamScore){
-        //         alert("무승부 입니다.")
-        //     }
-        // } 
-
-        // setMatchResultMessage(`${matchResultCnt} 안타!!` )
-        // ScoreCheck(matchResultCnt)
-        matchResultCnt = 0;
-    }
-    
-
-
-    // const [matchResultCnt, setMatchResultCnt] = useState<number>(1);
-    const [matchResultMessage, setMatchResultMessage] = useState<string>('');
-
-
-    // const ScoreCheck = (matchResultCnt:number) => {
-    //     if(matchResultCnt === 3){
+    // const ScoreCheck = (matchHitCnt:number) => {
+    //     if(matchHitCnt === 3){
     //         if(gameRound === 1){
     //             setHomeTeamScore(homeTeamScore + 1);
     //         }
@@ -253,29 +211,95 @@ const Ground: React.FC = () => {
     console.log('gameRound', gameRound)
     console.log('gameRound2', teamOriginId === gameRound.toString())
     // let gameSetCnt : number = 0;
-    const [gameSetCnt, setGameSetCnt] =useState<number>(0);
-    let matchResultCnt : number = 0;
-
+    const [gameSetCnt, setGameSetCnt] = useState<number>(0);
+    const [matchHitCnt, setMatchHitCnt] = useState<number>(0)
+    const [matchStrikeCnt, setMatchStrikeCnt] = useState<number>(0);
+    // let matchHitCnt : number = 0;
+    const [attackAction, setAttackAction] = useState<boolean>(false);
     const determineAttackNum = () => {
         setDetermineMyAttackNum(JSON.parse(JSON.stringify(myNumArray)))
         setGameSetCnt(gameSetCnt+1);
-        gameBtn();
+        setAttackAction(true)
+
+        // gameBtn();
         // matchAttackNumAndOutNum();
         if(gameSetCnt === 3){
             setGameRound(gameRound+0.5);
             setAttackTeam(rivalTeamName);
-            matchResultCnt = 0;
-          setGameSetCnt(0);
+            setMatchHitCnt(0)
+            setGameSetCnt(0);
         }
     
         myNumArray.length = 0;
     }
+
+    const [gameScore, setGameScore] = useState<number>(0);
+
+    useEffect(() => {
+        // let gameScore : number = 0;
+
+        const gameNumArray : Array<number> = [0,1,2]
+        console.log('rivalNum use', rivalNum)
+       if(attackAction === true){
+        gameNumArray.map((el) => {
+
+        // for(let i = 0; i<=2; i++){
+            console.log('rival to 1', rivalNum[el])
+            console.log('rival to 2', determineMyAttackNum[el])
+
+            if(rivalNum[el] === determineMyAttackNum[el]){
+                console.log('측정1', rivalNum[el])
+                console.log('측정2', determineMyAttackNum[el])
+                
+                setMatchHitCnt(matchHitCnt+1);
+                // setMatchResultMessage(`${matchHitCnt} 안타!!` )
+                if(matchHitCnt % 3 === 0 && (gameRound - 0.5 < gameRound ) ){
+                    // gameScore+=1;
+                    setHomeTeamScore(homeTeamScore+1);
+                    socket.emit('gameScore', homeTeamScore);
+               
+                }
+            } else if(rivalNum[el] !== determineMyAttackNum[el]){
+                setMatchStrikeCnt(matchStrikeCnt+1);
+                // for(let j = 0; j< rivalNum.length; j++){
+                //     if(determineMyAttackNum[j] === rivalNum[i]){
+                //         ballCnt+=1;
+                //     }
+                // }
+                // setMatchResultMessage(`${matchStrikeCnt} 스트라이크` )
+            } 
+        // }
+        console.log('히트1', matchHitCnt);
+        })
+        console.log('히트2', matchHitCnt);
+        setMatchResultMessage(`${matchHitCnt} 안타!! ${matchStrikeCnt} 스트라이크` );
+   
+        }
+        setAttackAction(false);
+
+        
+        // if(matchHitCnt === 3){
+        //     alert('게임이 끝났습니다.')
+        //     if(homeTeamScore > awayTeamScore){
+        //         alert(`${teamName}이 승리했습니다.`);
+        //     }else if(homeTeamScore < awayTeamScore){
+        //         alert(`너네 야구단팀이 승리했습니다.`);
+        //     }else if(homeTeamScore === awayTeamScore){
+        //         alert("무승부 입니다.")
+        //     }
+        // } 
+
+        // setMatchResultMessage(`${matchHitCnt} 안타!!` )
+        // ScoreCheck(matchHitCnt)
+        // setMatchHitCnt(0);
+
+    },[attackAction])
     console.log('gameSetCnt',gameSetCnt)
     return(
         <div className="total_back">
             <TopBar teamName={teamName} homeTeamScore={homeTeamScore} awayTeamScore={awayTeamScore} gameRound={gameRound} rivalTeamName={rivalTeamName} />
             <div className="total_back_inner">
-            <p className="total_back_situation">{determineMyAttackNum[0] !== undefined ? matchResultMessage : null}</p>
+            <p className="total_back_situation">{matchResultMessage}</p>
                 <div className="ground_back">
                     <div className="ground_back_position">
                         <div className="ground_back_position_top-base"/>
@@ -297,14 +321,14 @@ const Ground: React.FC = () => {
                                     {gameStatus === 2 ?
                                     <>
                                         <h2>아웃 카운트 입력</h2>
-                                        <MyOutNum myNumArray={myNumArray} />
+                                        <MyOutNumOrAttackNum myNumArray={myNumArray} />
                                     </>
                                         : gameStatus === 3 ?
                                         <>
                                             <h2>나의 아웃 카운트</h2>
-                                            <MyOutNum myNumArray={determineMyOutNum} />
+                                            <MyOutNumOrAttackNum myNumArray={determineMyOutNum} />
                                             <h2>공격 카운트 입력</h2>
-                                            <MyAttackNum myNumArray={myNumArray} />
+                                            <MyOutNumOrAttackNum myNumArray={myNumArray} />
                                         </>
                                     : null
                                     }
@@ -314,13 +338,11 @@ const Ground: React.FC = () => {
                                     { gameStatus === 3 && teamReady[1] !== undefined ?
                                         <ChoiceAttackNumberPad deleteNum={deleteNum} cntText={cntText} setCntText={setCntText} selectNum={selectNum} myNumArray={myNumArray} />
                                     : gameStatus === 3 && myNumArray.length === 3 && teamReady[0] === undefined ?  <h4>상대방이 아웃카운트를 정하고 있습니다. 잠시만 기다려주세요</h4> : null }    
-                                         {/* {myNumArray.length === 3 && teamReady[0] === undefined ?  <h4>상대방이 아웃카운트를 정하고 있습니다. 잠시만 기다려주세요</h4> : null}        */}
                                     {gameStatus === 2 || gameStatus === 3 ?
                                     <div className="game_pad_num_line">
                                         {myNumArray.length !== 3  && <button className="game_pad_num_line_info_register" onClick={() => toPrevNum()}>이전</button>}
                                         {myNumArray.length < 3 && <button className="game_pad_num_line_info_register" onClick={() =>  toNextNum() }>다음</button>}
                                         {myNumArray.length === 3 && teamReady[0] === undefined && teamOriginId === '1' ? <button className="game_pad_num_line_info_register"  onClick={()=> determineMyOutNum.length !== 3 && teamReady[0] === undefined && teamOriginId === '1' ? determineOutNum() :  alert('상대방을 기다려주세요1.')}>등록</button> : null}
-                                        {/* {myNumArray.length === 3 && teamReady[0] === undefined ?  <h4>상대방이 아웃카운트를 정하고 있습니다. 잠시만 기다려주세요</h4> : null} */}
                                         {myNumArray.length === 3 && teamReady[1] === undefined && teamOriginId === '1.5' ? <button className="game_pad_num_line_info_register"  onClick={()=> determineMyOutNum.length !== 3 && teamReady[0] !== undefined && teamOriginId === '1.5' ? determineOutNum() :  alert('상대방을 기다려주세요2.')}>등록</button> : null}
                                         {myNumArray.length === 3 && teamReady[1] !== undefined ? <button className="game_pad_num_line_info_register"  onClick={()=> determineMyOutNum.length === 3 &&  teamOriginId === gameRound.toString() ? determineAttackNum():  alert('본인의 차례가 아니입니다.')}>등록</button> : null}
                                     </div>
@@ -511,7 +533,8 @@ const ChoiceAttackNumberPad = ({deleteNum, cntText, setCntText, selectNum, myNum
     )
 }
 
-const MyOutNum = ({myNumArray}: any) => {
+
+const MyOutNumOrAttackNum = ({myNumArray}: any) => {
 
     return(
         <div className="game_pad_second_inner">
@@ -522,16 +545,3 @@ const MyOutNum = ({myNumArray}: any) => {
     )
 }
 
-
-const MyAttackNum = ({myNumArray}: any) => {
-
-    return(
-        <div className="game_pad_second_inner">
-            <div className="game_pad_second_inner_text">{myNumArray[0]}</div>
-            <div className="game_pad_second_inner_text">{myNumArray[1]}</div>
-            <div className="game_pad_second_inner_text">{myNumArray[2]}</div>
-        </div>
-    )
-}
-
-// 20221204 상대팀 랜덤 숫자 값까지 구함, 상대방 숫자 맞추게하는 로직 작성해야 함
