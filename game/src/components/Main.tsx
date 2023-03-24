@@ -37,26 +37,18 @@ const Main: React.FC = () => {
 
   const [rivalTeamName, setRivalTeamName] = useState<string[]>([]);
   useEffect(() =>  {
-  
-
        console.log('socket', socket)
-   
-
     // socket.emit('add user', nickname);
     if(rivalNameCheck=== true && teamName){
     const checkSocket = async() =>{
-        socket.on('responseTeamName', (data) => {
-            console.log('teamF', data)
-            if(teamName !== data){
-                setRivalTeamName(rivalTeamName.concat(data));
-            }
-        });
-       
+      socket.on('responseTeamName', (data) => {
+          console.log('teamF', data)
+          if(teamName !== data){
+              setRivalTeamName(rivalTeamName.concat(data));
+          }
+      });
     }
-
     checkSocket();
-   
-
   }
   setRivalNameCheck(false);
 
@@ -104,7 +96,7 @@ const Main: React.FC = () => {
         </div>
         <div className="project_bottom">
         {resultName === true &&
-          <Link to={`/game?team=${teamName}&&id=${rivalTeamName[0] !== undefined ? 1.5 : 1}`}>
+          <Link to={`/game?team=${teamName}&id=${rivalTeamName[0] === undefined ? 1 : 1.5}`}>
             <button className="btn_game_start">
               게임시작
             </button>

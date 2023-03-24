@@ -40,7 +40,7 @@ const Ground: React.FC = () => {
 
         // socket.emit('add user', nickname);
         
-        const checkSocket = async() =>{
+        const checkSocket = () =>{
             socket.on('responseTeamName', (data) => {
                 console.log('teamF', data)
                 if(teamName !== data){
@@ -57,14 +57,17 @@ const Ground: React.FC = () => {
             });
             socket.on('teamReady', (data) => {
                 console.log('teamReady', data)
-          
                 setTeamReady(teamReady.concat(data));
                 
             });
             socket.on('situation', (data) => {
                 console.log('situation', data)
-          
                 setMatchResultMessage(data);
+                
+            });
+            socket.on('round', (data) => {
+                console.log('round', data)
+                setGameRound(data)
                 
             });
         }
@@ -235,13 +238,19 @@ const Ground: React.FC = () => {
 
     const [gameScore, setGameScore] = useState<number>(0);
 
+    console.log('rival to 1', rivalNum)
+    console.log('rival to 2', determineMyOutNum)
+
+    //20230324 내 공격 번호를 상대방의 번호와 비교하는 작업 필요, 내 공격번호와 내 번호를 비교하지 않게!! 
     useEffect(() => {
         // let gameScore : number = 0;
 
         const gameNumArray : Array<number> = [0,1,2]
         console.log('rivalNum use', rivalNum)
-       if(attackAction === true){
-        gameNumArray.map((el) => {
+        if(attackAction === true){
+            gameSetCnt === 3 && socket.emit('round', gameRound);
+            console.log('attackAction', attackAction)
+            gameNumArray.map((el) => {
 
         // for(let i = 0; i<=2; i++){
             console.log('rival to 1', rivalNum[el])
@@ -257,9 +266,8 @@ const Ground: React.FC = () => {
                     // gameScore+=1;
                     setHomeTeamScore(homeTeamScore+1);
                     socket.emit('gameScore', homeTeamScore);
-               
                 }
-            } else if(rivalNum[el] !== determineMyAttackNum[el]){
+            } else if(rivalNum[el] !== determineMyOutNum[el]){
                 setMatchStrikeCnt(matchStrikeCnt+1);
                 // for(let j = 0; j< rivalNum.length; j++){
                 //     if(determineMyAttackNum[j] === rivalNum[i]){
