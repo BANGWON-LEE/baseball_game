@@ -56,6 +56,12 @@ socket.on('gameScore', (data) => {
    console.log(data);
    io.emit('gameScore',data)
 });
+
+socket.on('rivalOutNum', (data) => {
+   console.log('rivalOutNum',data);
+   io.emit('rivalOutNum',data)
+});
+
 })
 
 
