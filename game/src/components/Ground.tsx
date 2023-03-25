@@ -15,7 +15,7 @@ const Ground: React.FC = () => {
 
     const [searchParams] = useSearchParams();
     const teamName = searchParams.get('team');
-    const teamOriginId = searchParams.get('id');
+    const teamOriginId : any  = searchParams.get('id');
     const [teamReady,setTeamReady] = useState<string[]>([])
     // const [teamTurn, setTeamTurn] = useState<number>(0);
     const [gameStatus, setGameStatus] = useState<number>(1)
@@ -31,6 +31,10 @@ const Ground: React.FC = () => {
     const [myNumArray, setMyNumArray] = useState<string[]>([]) // 숫자 배열
     const [totalSituation, setTotalSituation] = useState<string>('')
     const [matchResultMessage, setMatchResultMessage] = useState<string>('');
+    interface Score {
+        [key: string]: any;
+    }
+    const [checkRivalScore, setCheckRivalScore] =useState<Score>({})
 
     useEffect(() =>  {
         socket.emit('teamName', teamName);
@@ -70,6 +74,15 @@ const Ground: React.FC = () => {
                 setGameRound(data)
                 
             });
+            
+            socket.on('rivalOutNum', (data) => {
+                // console.log('rivalOutNum', Object.keys(data))
+                // 유저별(url id 기준) 자신의 아웃 넘버를 구별하여 가져오는 문장
+                let key : any = Object.keys(data)
+                let value : any = Object.values(data)
+                setCheckRivalScore(data)
+                setCheckRivalScore({ ...checkRivalScore, [key] : value });
+            });
         }
 
         checkSocket();
@@ -89,7 +102,7 @@ const Ground: React.FC = () => {
 
       });
     
-
+      console.log('checkRivalScore', checkRivalScore)
 
 
     const gameStart = () : void => {
@@ -173,7 +186,10 @@ const Ground: React.FC = () => {
     // } 
 
     let teamId = 1
-  
+
+ 
+    // type Score = Record<string, string | number>;
+
     const determineOutNum = () => {
        
         // console.log('deter')
@@ -186,9 +202,10 @@ const Ground: React.FC = () => {
         socket.emit('teamReady', 'true');
         teamId += 0.5;
         console.log('234234')
+        
     }
 
-    console.log('team',teamReady);
+
 
     const [determineMyAttackNum, setDetermineMyAttackNum] = useState<string[]>([])
 
@@ -201,19 +218,28 @@ const Ground: React.FC = () => {
     //         }
     //     }
     // }
+ 
+
+    let myScore: Score = {};
+
 
     useEffect(() => {
-        socket.emit('Attack', determineMyAttackNum);
+        if(determineMyAttackNum){
+            socket.emit('Attack', determineMyAttackNum);
+        }
+        if(determineMyOutNum){
+            // 유저의 num(아웃 넘버)를 구부해주기 위한 작업
+            // setCheckMyScore
+            // ((prevState) => ({
+            //     ...prevState,
+            //     [teamOriginId]: determineMyOutNum,
+            //   }));
+            myScore[teamOriginId] = determineMyOutNum
+            socket.emit('rivalOutNum', myScore )
+        }
 
+    },[determineMyAttackNum, determineMyOutNum])
 
-    },[determineMyAttackNum])
-    
-    // console.log('determineMyOutNum', determineMyOutNum)
-
-    console.log('rivalNum', rivalNum)
-    console.log('gameRound', gameRound)
-    console.log('gameRound2', teamOriginId === gameRound.toString())
-    // let gameSetCnt : number = 0;
     const [gameSetCnt, setGameSetCnt] = useState<number>(0);
     const [matchHitCnt, setMatchHitCnt] = useState<number>(0)
     const [matchStrikeCnt, setMatchStrikeCnt] = useState<number>(0);
