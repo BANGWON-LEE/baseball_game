@@ -37,7 +37,7 @@ const Main: React.FC = () => {
 
   const [rivalTeamName, setRivalTeamName] = useState<string[]>([]);
   useEffect(() =>  {
-       console.log('socket', socket)
+    console.log('socket', socket)
     // socket.emit('add user', nickname);
     if(rivalNameCheck=== true && teamName){
     const checkSocket = async() =>{
