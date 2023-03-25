@@ -3,10 +3,10 @@ const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server, {
   cors: {
-    origin: 'http://localhost:3000',
-    methods: ['GET', 'POST'],
-    allowedHeaders: ['my-custom-header'],
-    credentials: true
+    origin: '*',
+   //  methods: ['GET', 'POST'],
+   //  allowedHeaders: ['my-custom-header'],
+   //  credentials: true
   }
 });
 
@@ -18,12 +18,7 @@ io.on('connection', (socket) => {
    console.log('A user connected');
 
 socket.on('teamName', (data) => {
-   console.log(data);
-   io.emit('teamName',data)
-});
-
-socket.on('responseTeamName', (data) => {
-   console.log(data);
+   console.log("teamName",data);
    io.emit('responseTeamName',data)
 });
 
