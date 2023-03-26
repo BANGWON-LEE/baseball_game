@@ -24,7 +24,7 @@ const Ground: React.FC = () => {
     const [awayTeamScore, setAwayTeamScore] = useState<number>(0)
     const [gameRound, setGameRound] = useState<number>(1)
     const [rivalTeamName, setRivalTeamName] = useState<string>('');
-    const [rivalNum, setRivalNum] = useState<string[]>([])
+    const [rivalAttackNum, setRivalAttackNum] = useState<string[]>([])
 
     const [attackTeam, setAttackTeam] = useState<string>('');
 
@@ -34,7 +34,7 @@ const Ground: React.FC = () => {
     interface Score {
         [key: string]: any;
     }
-    const [checkRivalScore, setCheckRivalScore] =useState<Score>({})
+    const [checkDefendScore, setCheckRivalScore] =useState<Score>({})
 
     useEffect(() =>  {
         socket.emit('teamName', teamName);
@@ -57,7 +57,7 @@ const Ground: React.FC = () => {
             });
             socket.on('Attack', (data) => {
                 console.log('teamF', data)
-                setRivalNum(data);
+                setRivalAttackNum(data);
             });
             socket.on('teamReady', (data) => {
                 console.log('teamReady', data)
@@ -80,8 +80,8 @@ const Ground: React.FC = () => {
                 // 유저별(url id 기준) 자신의 아웃 넘버를 구별하여 가져오는 문장
                 let key : any = Object.keys(data)
                 let value : any = Object.values(data)
-                setCheckRivalScore(data)
-                setCheckRivalScore({ ...checkRivalScore, [key] : value });
+                // setCheckRivalScore(data)
+                setCheckRivalScore({ ...checkDefendScore, [key] : value });
             });
         }
 
@@ -102,7 +102,7 @@ const Ground: React.FC = () => {
 
       });
     
-      console.log('checkRivalScore', checkRivalScore)
+      console.log('checkDefendScore', checkDefendScore[gameRound - Math.floor(gameRound) === 0 ? '1.5':'1'])
 
 
     const gameStart = () : void => {
@@ -181,7 +181,7 @@ const Ground: React.FC = () => {
     //     //     rivalArr.push(randomNum)
     //     //     console.log('i-- 2', randomNum)
     //     // }
-    //     // setRivalNum(rivalArr)
+    //     // setRivalAttackNum(rivalArr)
     //     // return
     // } 
 
@@ -194,7 +194,7 @@ const Ground: React.FC = () => {
        
         // console.log('deter')
         setDetermineMyOutNum(JSON.parse(JSON.stringify(myNumArray)))
-  
+
         // 난수 3개를 담기 위한 로직
         // rivalOutNumCreate();
         setMyNumArray([])
@@ -218,7 +218,7 @@ const Ground: React.FC = () => {
     //         }
     //     }
     // }
- 
+
 
     let myScore: Score = {};
 
@@ -248,7 +248,7 @@ const Ground: React.FC = () => {
     const determineAttackNum = () => {
         setDetermineMyAttackNum(JSON.parse(JSON.stringify(myNumArray)))
         setGameSetCnt(gameSetCnt+1);
-        setAttackAction(true)
+        // setAttackAction(true)
 
         // gameBtn();
         // matchAttackNumAndOutNum();
@@ -256,47 +256,53 @@ const Ground: React.FC = () => {
             setGameRound(gameRound+0.5);
             setAttackTeam(rivalTeamName);
             setMatchHitCnt(0)
+            setMatchStrikeCnt(0)
             setGameSetCnt(0);
         }
-    
         myNumArray.length = 0;
     }
 
-    const [gameScore, setGameScore] = useState<number>(0);
+    // const [gameScore, setGameScore] = useState<number>(0);
 
-    console.log('rival to 1', rivalNum)
-    console.log('rival to 2', determineMyOutNum)
+    console.log('rival to 1', rivalAttackNum)
+    // console.log('rival to 2', determineMyOutNum)
 
     //20230324 내 공격 번호를 상대방의 번호와 비교하는 작업 필요, 내 공격번호와 내 번호를 비교하지 않게!! 
     useEffect(() => {
-        // let gameScore : number = 0;
-
         const gameNumArray : Array<number> = [0,1,2]
-        console.log('rivalNum use', rivalNum)
-        if(attackAction === true){
+        let checkHitCnt : number = 0;
+        let o = 0;
+        console.log('rivalAttackNum use1', rivalAttackNum)        
+        console.log('rivalAttackNum use2', checkDefendScore['1.5']?.[0]?.[0] )
+        // if(attackAction === true){
             gameSetCnt === 3 && socket.emit('round', gameRound);
             console.log('attackAction', attackAction)
-            gameNumArray.map((el) => {
+            gameNumArray?.map((el) => {
 
         // for(let i = 0; i<=2; i++){
-            console.log('rival to 1', rivalNum[el])
+            console.log('rival to 3', rivalAttackNum)
             console.log('rival to 2', determineMyAttackNum[el])
 
-            if(rivalNum[el] === determineMyAttackNum[el]){
-                console.log('측정1', rivalNum[el])
-                console.log('측정2', determineMyAttackNum[el])
+            if(rivalAttackNum?.[el] === checkDefendScore?.[gameRound - Math.floor(gameRound) === 0 ? '1.5':'1']?.[0]?.[el] && rivalAttackNum?.[el] !== undefined ){
+                console.log('측정1', rivalAttackNum[el])
+                console.log('측정2', checkDefendScore?.[gameRound - Math.floor(gameRound) === 0 ? '1.5':'1']?.[el])
                 
                 setMatchHitCnt(matchHitCnt+1);
+                checkHitCnt +=1;
+                console.log('1111', checkHitCnt)
                 // setMatchResultMessage(`${matchHitCnt} 안타!!` )
-                if(matchHitCnt % 3 === 0 && (gameRound - 0.5 < gameRound ) ){
+                if(checkHitCnt % 3 === 0 && checkHitCnt > 0 ){
                     // gameScore+=1;
-                    setHomeTeamScore(homeTeamScore+1);
+                    setHomeTeamScore(checkHitCnt);
                     socket.emit('gameScore', homeTeamScore);
                 }
-            } else if(rivalNum[el] !== determineMyOutNum[el]){
-                setMatchStrikeCnt(matchStrikeCnt+1);
-                // for(let j = 0; j< rivalNum.length; j++){
-                //     if(determineMyAttackNum[j] === rivalNum[i]){
+            } else if(rivalAttackNum?.[el] !== checkDefendScore?.[gameRound - Math.floor(gameRound) === 0 ? '1.5':'1']?.[0]?.[el] && rivalAttackNum?.[el] !== undefined ){
+                
+                o+=1;
+                console.log('스트라이크', o);
+                setMatchStrikeCnt(o);
+                // for(let j = 0; j< rivalAttackNum.length; j++){
+                //     if(determineMyAttackNum[j] === rivalAttackNum[i]){
                 //         ballCnt+=1;
                 //     }
                 // }
@@ -306,9 +312,8 @@ const Ground: React.FC = () => {
         console.log('히트1', matchHitCnt);
         })
         console.log('히트2', matchHitCnt);
-        setMatchResultMessage(`${matchHitCnt} 안타!! ${matchStrikeCnt} 스트라이크` );
-   
-        }
+        // setMatchResultMessage(`${matchHitCnt} 안타!! ${matchStrikeCnt} 스트라이크` );
+        // }
         setAttackAction(false);
 
         
@@ -320,20 +325,20 @@ const Ground: React.FC = () => {
         //         alert(`너네 야구단팀이 승리했습니다.`);
         //     }else if(homeTeamScore === awayTeamScore){
         //         alert("무승부 입니다.")
-        //     }
+        //     }`
         // } 
 
         // setMatchResultMessage(`${matchHitCnt} 안타!!` )
         // ScoreCheck(matchHitCnt)
         // setMatchHitCnt(0);
 
-    },[attackAction])
+    },[rivalAttackNum, checkDefendScore, attackAction])
     console.log('gameSetCnt',gameSetCnt)
     return(
         <div className="total_back">
             <TopBar teamName={teamName} homeTeamScore={homeTeamScore} awayTeamScore={awayTeamScore} gameRound={gameRound} rivalTeamName={rivalTeamName} />
             <div className="total_back_inner">
-            <p className="total_back_situation">{matchResultMessage}</p>
+            <p className="total_back_situation">{matchHitCnt > 0 && matchHitCnt + "안타 "}{matchStrikeCnt > 0 && matchStrikeCnt + "스트라이크"}</p>
                 <div className="ground_back">
                     <div className="ground_back_position">
                         <div className="ground_back_position_top-base"/>
