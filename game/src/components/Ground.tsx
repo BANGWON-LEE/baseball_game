@@ -242,6 +242,7 @@ const Ground: React.FC = () => {
 
     const [gameSetCnt, setGameSetCnt] = useState<number>(0);
     const [matchHitCnt, setMatchHitCnt] = useState<number>(0)
+    const [matchBallCnt, setMatchBallCnt] = useState<number>(0)
     const [matchStrikeCnt, setMatchStrikeCnt] = useState<number>(0);
     // let matchHitCnt : number = 0;
     const [attackAction, setAttackAction] = useState<boolean>(false);
@@ -257,6 +258,7 @@ const Ground: React.FC = () => {
             setAttackTeam(rivalTeamName);
             setMatchHitCnt(0)
             setMatchStrikeCnt(0)
+            setMatchBallCnt(0)
             setGameSetCnt(0);
         }
         myNumArray.length = 0;
@@ -272,8 +274,12 @@ const Ground: React.FC = () => {
         const gameNumArray : Array<number> = [0,1,2]
         let checkHitCnt : number = 0;
         let o = 0;
+        let ballCount : number  = 0
         console.log('rivalAttackNum use1', rivalAttackNum)        
         console.log('rivalAttackNum use2', checkDefendScore['1.5']?.[0]?.[0] )
+        setMatchHitCnt(0);
+        setMatchStrikeCnt(0);
+        setMatchBallCnt(0);
         // if(attackAction === true){
             gameSetCnt === 3 && socket.emit('round', gameRound);
             console.log('attackAction', attackAction)
@@ -287,8 +293,8 @@ const Ground: React.FC = () => {
                 console.log('측정1', rivalAttackNum[el])
                 console.log('측정2', checkDefendScore?.[gameRound - Math.floor(gameRound) === 0 ? '1.5':'1']?.[el])
                 
-                setMatchHitCnt(matchHitCnt+1);
                 checkHitCnt +=1;
+                setMatchHitCnt(checkHitCnt);
                 console.log('1111', checkHitCnt)
                 // setMatchResultMessage(`${matchHitCnt} 안타!!` )
                 if(checkHitCnt % 3 === 0 && checkHitCnt > 0 ){
@@ -301,16 +307,22 @@ const Ground: React.FC = () => {
                 o+=1;
                 console.log('스트라이크', o);
                 setMatchStrikeCnt(o);
-                // for(let j = 0; j< rivalAttackNum.length; j++){
-                //     if(determineMyAttackNum[j] === rivalAttackNum[i]){
-                //         ballCnt+=1;
-                //     }
-                // }
                 // setMatchResultMessage(`${matchStrikeCnt} 스트라이크` )
-            } 
+            }
+            for (let i = 0; i < rivalAttackNum?.length; i++) {
+                if (checkDefendScore?.[gameRound - Math.floor(gameRound) === 0 ? '1.5':'1']?.[0].indexOf(rivalAttackNum?.[i]) !== -1 && rivalAttackNum?.indexOf(rivalAttackNum?.[i]) !== i) {
+        
+                    ballCount+=1;
+                    setMatchBallCnt(ballCount);
+                }
+              }
+            
+
         // }
         console.log('히트1', matchHitCnt);
         })
+
+
         console.log('히트2', matchHitCnt);
         // setMatchResultMessage(`${matchHitCnt} 안타!! ${matchStrikeCnt} 스트라이크` );
         // }
@@ -338,7 +350,7 @@ const Ground: React.FC = () => {
         <div className="total_back">
             <TopBar teamName={teamName} homeTeamScore={homeTeamScore} awayTeamScore={awayTeamScore} gameRound={gameRound} rivalTeamName={rivalTeamName} />
             <div className="total_back_inner">
-            <p className="total_back_situation">{matchHitCnt > 0 && matchHitCnt + "안타 "}{matchStrikeCnt > 0 && matchStrikeCnt + "스트라이크"}</p>
+            <p className="total_back_situation">{matchHitCnt > 0 ? matchHitCnt + "안타" : matchStrikeCnt > 0 ?  matchStrikeCnt + "스트라이크" + matchBallCnt + "볼"  : null}</p>
                 <div className="ground_back">
                     <div className="ground_back_position">
                         <div className="ground_back_position_top-base"/>
