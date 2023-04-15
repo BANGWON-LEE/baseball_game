@@ -1,4 +1,4 @@
-import React, { createContext, useEffect, useState } from "react";
+import React, { createContext, useEffect, useLayoutEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import '../styles/component.scss'
 import closeBtn from "../asset/png/close_btn.png"
@@ -15,7 +15,9 @@ const Ground: React.FC = () => {
 
     const [searchParams] = useSearchParams();
     const teamName = searchParams.get('team');
+    // console.log('팀이름', teamName)
     const teamOriginId : any  = searchParams.get('id');
+    const roomId : any  = searchParams.get('no');
     const [teamReady,setTeamReady] = useState<string[]>([])
     // const [teamTurn, setTeamTurn] = useState<number>(0);
     const [gameStatus, setGameStatus] = useState<number>(1)
@@ -35,28 +37,42 @@ const Ground: React.FC = () => {
         [key: string]: any;
     }
     const [checkDefendScore, setCheckRivalScore] =useState<Score>({})
+    
+    useEffect(() => {
+            socket.emit('joinRoom', roomId);
+        socket.emit('teamName', { room: roomId, teamName });
+    
+      },[])
+ 
 
     useEffect(() =>  {
-        socket.emit('teamName', teamName);
+        // socket.emit('teamName', teamName);
+        // socket.emit('teamName', { room: roomId, teamName })
+        socket.emit('joinRoom', roomId);
+        const joinReady = 'true'
+        socket.emit('joinReady', { room: roomId, joinReady });
+        socket.emit('teamName', { room: roomId, teamName });
   
-           console.log('socket', socket)
+           console.log('socket ground', socket)
        
 
         // socket.emit('add user', nickname);
+
         
-        const checkSocket = () =>{
+        // const checkSocket = () =>{
+            
             socket.on('responseTeamName', (data) => {
-                console.log('teamF', data)
-                if(teamName !== data){
-                    setRivalTeamName(data);
+                console.log('팀보기', data)
+                if(teamName !== data.teamName){
+                    setRivalTeamName(data.teamName);
                 }
             });
             socket.on('gameScore', (data) => {
-                console.log('teamF', data)
+                // console.log('teamF', data)
                 setAwayTeamScore(data);
             });
             socket.on('Attack', (data) => {
-                console.log('teamF', data)
+                // console.log('teamF', data)
                 setRivalAttackNum(data);
             });
             socket.on('teamReady', (data) => {
@@ -83,9 +99,9 @@ const Ground: React.FC = () => {
                 // setCheckRivalScore(data)
                 setCheckRivalScore({ ...checkDefendScore, [key] : value });
             });
-        }
+        // }
 
-        checkSocket();
+        // checkSocket();
 
         // socket.on('user joined', (data) =>{
         //   setchats(chats.concat(`${data.username} joined`));
@@ -199,7 +215,9 @@ const Ground: React.FC = () => {
         // rivalOutNumCreate();
         setMyNumArray([])
         setGameStatus(gameStatus + 1)
-        socket.emit('teamReady', 'true');
+        const readySignal = 'true'
+        socket.emit('teamReady', {room: roomId, readySignal });
+        
         teamId += 0.5;
         console.log('234234')
         
@@ -225,7 +243,7 @@ const Ground: React.FC = () => {
 
     useEffect(() => {
         if(determineMyAttackNum){
-            socket.emit('Attack', determineMyAttackNum);
+            socket.emit('Attack', {room: roomId, determineMyAttackNum});
         }
         if(determineMyOutNum){
             // 유저의 num(아웃 넘버)를 구부해주기 위한 작업
@@ -235,7 +253,7 @@ const Ground: React.FC = () => {
             //     [teamOriginId]: determineMyOutNum,
             //   }));
             myScore[teamOriginId] = determineMyOutNum
-            socket.emit('rivalOutNum', myScore )
+            socket.emit('rivalOutNum', {room:roomId, myScore} )
         }
 
     },[determineMyAttackNum, determineMyOutNum])
@@ -283,7 +301,7 @@ const Ground: React.FC = () => {
         setMatchStrikeCnt(0);
         setMatchBallCnt(0);
 
-            gameSetCnt === 3 && socket.emit('round', gameRound);
+            gameSetCnt === 3 && socket.emit('round', {room: roomId, gameRound});
             console.log('attackAction', attackAction)
             gameNumArray?.map((el) => {
 
@@ -304,7 +322,7 @@ const Ground: React.FC = () => {
                 setMatchHitCnt(checkHitCnt);
                 if(checkHitCnt % 3 === 0 && checkHitCnt > 0 ){
                     setHomeTeamScore(checkHitCnt);
-                    socket.emit('gameScore', homeTeamScore);
+                    socket.emit('gameScore', {room:roomId,homeTeamScore});
                 }
             } 
             
@@ -412,6 +430,7 @@ const Ground: React.FC = () => {
 export default Ground;
 
 const TopBar = ({teamName, homeTeamScore, awayTeamScore, gameRound, rivalTeamName}: any)  => { 
+
 
 
     return(
