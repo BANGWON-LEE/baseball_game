@@ -1,5 +1,6 @@
 import React, { useState, createContext, useEffect } from "react";
 import { Link, useRoutes } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import '../styles/component.scss'
 
 import io from "socket.io-client";
@@ -14,9 +15,19 @@ const Main: React.FC = () => {
   const [resultName, setResultName] = useState<Boolean>(false)
   const [rivalNameCheck, setRivalNameCheck] = useState<Boolean>(false);
   const [teamId, setTeamId] = useState<number>(2);
-  let forTurnDivide : number = 0
+  const [searchParams] = useSearchParams();
+  const roomId : any  = searchParams.get('no');
+
+  useEffect(() => {
+    socket.emit('joinRoom', roomId);
+
+  },[])
+  
+  let joinStep:number = 0; 
+  // let resultJoinStep:number = 0;
+  const [resultJoinStep, setResultJoinStep] = useState<number>(0)
   const registerTeam = () : void => {
-    socket.emit('teamName', teamName);
+    socket.emit('teamName', { room: roomId, teamName });
     // socket.emit('teamName', teamName);
     // if(teamId === undefined){
     //   setTeamId(teamId-0.5)
@@ -27,34 +38,97 @@ const Main: React.FC = () => {
     // forTurnDivide += 0.5;
     // setTeamId(teamId - forTurnDivide)
     // console.log('teamID', teamId);
+    // if(userReady === 'true'){
+      joinStep += 1;
+      console.log('더한 스텝', joinStep)
+      socket.emit('joinStep', { room: roomId, joinStep });
+    // }
     setResultName(true);
     setRivalNameCheck(true);
   }
+  
   const changeTeamName = () : void => {
     setResultName(false);
     setTeamName('')
   }
 
+  
   const [rivalTeamName, setRivalTeamName] = useState<string[]>([]);
+  const [userReady, setUserReady]= useState<string>('false');  
   useEffect(() =>  {
-    console.log('socket', socket)
+    console.log('socket main', socket)
+
+    socket.on('joinReady', (data) => {
+      console.log('접속준비', data)
+      setUserReady(data.joinReady)
+
+  });
+
+
     // socket.emit('add user', nickname);
     if(rivalNameCheck=== true && teamName){
-    const checkSocket = async() =>{
-      socket.on('responseTeamName', (data) => {
-          console.log('teamF', data)
-          if(teamName !== data){
-              setRivalTeamName(rivalTeamName.concat(data));
-          }
-      });
+    // const checkSocket = () =>{
+    socket.on('responseTeamName', (data) => {
+        console.log('보자보자', data.teamName)
+        console.log('보자보자 이름', teamName)
+        // if(teamName === data.teamName){
+          
+            // setRivalTeamName(rivalTeamName.concat(data.teamName));
+            setRivalTeamName((rivalTeamName) => [...rivalTeamName, data.teamName])
+        // }
+    });
+
+    socket.on('joinStep', (data) => {
+      console.log('조인스텝', typeof(data.joinStep))
+      console.log('조인스텝 vv', data.joinStep)
+      // let joinStep : number = 1;
+      console.log('소켓 더한 스텝', joinStep)
+      joinStep += data.joinStep
+      setResultJoinStep(joinStep)
+  });
+
     }
-    checkSocket();
-  }
+    // checkSocket();
+  // }
   setRivalNameCheck(false);
 
   },[teamName, rivalNameCheck]);
+  console.log('resultJoin', resultJoinStep)
+  console.log('rivalTeamName', rivalTeamName.length)
+  console.log('userReady', userReady)
 
-  console.log('rivalTeamName', rivalTeamName)
+  interface BtnType{
+    userReady: string,
+    rivalTeamName : string[],
+    roomId : string,
+    teamName : string,
+    joinStep : number
+
+  }
+
+  console.log('스텝', resultJoinStep)
+
+  const GameStart = ({userReady, rivalTeamName, roomId, teamName}: BtnType) =>{
+
+    return(
+      <>
+      { userReady=== 'false' && rivalTeamName.length === 2 && resultJoinStep === 2 ?
+        <Link to={`/game?no=${roomId}&team=${teamName}&id=1`}>
+          <button className="btn_game_start">
+            게임시작
+          </button>
+        </Link>
+      : userReady === 'true' && rivalTeamName.length >= 2 && resultJoinStep === 1 ?
+      <Link to={`/game?no=${roomId}&team=${teamName}&id=1.5`}>
+          <button className="btn_game_start">
+            게임시작
+          </button>
+        </Link>
+      : rivalTeamName.length === 1 &&  <p>상대팀을 기다려주세요</p> }
+    </>
+    )
+  }
+
 
   return(
     <div className="main_back">
@@ -95,13 +169,12 @@ const Main: React.FC = () => {
           </div>
         </div>
         <div className="project_bottom">
-        {resultName === true &&
-          <Link to={`/game?team=${teamName}&id=${rivalTeamName[0] === undefined ? 1 : 1.5}`}>
-            <button className="btn_game_start">
-              게임시작
-            </button>
-          </Link>
+        {rivalTeamName.length === 0 && 
+          <p>
+            팀명을 입력해주세요
+          </p>
         }
+       <GameStart userReady={userReady} rivalTeamName={rivalTeamName} roomId={roomId} teamName={teamName} joinStep={joinStep} />
         </div>
       </div>
     </div>
