@@ -11,6 +11,7 @@ const io = require('socket.io')(server, {
 });
 
 const rooms = {};
+let visitorCount = 0;
 
 app.get('/', (req, res) => {
   res.send('API server is running');
@@ -32,6 +33,11 @@ io.on('connection', (socket) => {
 
    //  });
 
+  socket.on('1', (no) =>{
+    console.log('no ref', no);
+    io.emit('1', no );
+  }) 
+
   socket.on('joinRoom', (room) => {
   if (!rooms[room]) {
     rooms[room] = [];
@@ -41,6 +47,13 @@ io.on('connection', (socket) => {
   console.log(`User ${socket.id} joined room ${room}`);
 })
 
+
+  socket.on('userCnt', ({room, userCnt}) => {
+    visitorCount = visitorCount + userCnt
+    console.log('접속자 수 userCnt', userCnt)
+        console.log(`접속자 수 Message received from ${socket.id} in room ${room}: ${visitorCount}`);
+    io.to(room).emit('visitorCount',{sender: socket.id , visitorCount})
+  });
     
   socket.on('teamName', ({room, teamName}) => {
     console.log("teamName",teamName);
