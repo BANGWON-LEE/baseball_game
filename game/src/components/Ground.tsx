@@ -39,9 +39,10 @@ const Ground: React.FC = () => {
     const [checkDefendScore, setCheckRivalScore] =useState<Score>({})
     
     useEffect(() => {
-            socket.emit('joinRoom', roomId);
+        socket.emit('joinRoom', roomId);
         socket.emit('teamName', { room: roomId, teamName });
-    
+        
+            
       },[])
  
 
@@ -52,13 +53,6 @@ const Ground: React.FC = () => {
         const joinReady = 'true'
         socket.emit('joinReady', { room: roomId, joinReady });
         socket.emit('teamName', { room: roomId, teamName });
-  
-           console.log('socket ground', socket)
-       
-
-        // socket.emit('add user', nickname);
-
-        
         // const checkSocket = () =>{
             
             socket.on('responseTeamName', (data) => {
