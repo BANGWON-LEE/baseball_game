@@ -10,8 +10,8 @@ const App: React.FC = () => {
   return (
       <BrowserRouter>
         <Routes>
-          <Route  element={<Enter />} path="/" />
-          <Route  element={<Main />} path="/room" />
+          {/* <Route  element={<Enter />} path="/" /> */}
+          <Route  element={<Main />} path="/" />
           <Route  element={<Ground />} path="/game" />
         </Routes>
       </BrowserRouter> 
