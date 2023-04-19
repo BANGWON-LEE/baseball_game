@@ -36,14 +36,22 @@ const Ground: React.FC = () => {
     interface Score {
         [key: string]: any;
     }
-    const [checkDefendScore, setCheckRivalScore] =useState<Score>({})
+    const [checkRivalScore, setCheckRivalScore] =useState<Score>({})
     
     useEffect(() => {
         socket.emit('joinRoom', roomId);
         socket.emit('teamName', { room: roomId, teamName });
-        
-            
       },[])
+
+          // 새로고침 경고 관련 코드
+    useEffect(() => {
+        window.addEventListener('beforeunload', (event) => {
+            // 표준에 따라 기본 동작 방지
+            event.preventDefault();
+            // Chrome에서는 returnValue 설정이 필요함
+            event.returnValue = '게임이 초기화 될 수 있습니다.';
+        });
+    })
  
 
     useEffect(() =>  {
@@ -63,35 +71,35 @@ const Ground: React.FC = () => {
             });
             socket.on('gameScore', (data) => {
                 // console.log('teamF', data)
-                setAwayTeamScore(data);
+                setAwayTeamScore(data.homeTeamScore);
             });
             socket.on('Attack', (data) => {
                 // console.log('teamF', data)
-                setRivalAttackNum(data);
+                setRivalAttackNum(data.determineMyAttackNum);
             });
             socket.on('teamReady', (data) => {
-                console.log('teamReady', data)
-                setTeamReady(teamReady.concat(data));
+                console.log('teamReady', data.readySignal)
+                setTeamReady(teamReady.concat(data.readySignal));
                 
             });
-            socket.on('situation', (data) => {
-                console.log('situation', data)
-                setMatchResultMessage(data);
+            // socket.on('situation', (data) => {
+            //     console.log('situation', data)
+            //     setMatchResultMessage(data);
                 
-            });
+            // });
             socket.on('round', (data) => {
-                console.log('round', data)
-                setGameRound(data)
+                console.log('round', data.gameRound)
+                setGameRound(data.gameRound)
                 
             });
             
             socket.on('rivalOutNum', (data) => {
                 // console.log('rivalOutNum', Object.keys(data))
                 // 유저별(url id 기준) 자신의 아웃 넘버를 구별하여 가져오는 문장
-                let key : any = Object.keys(data)
-                let value : any = Object.values(data)
+                let key : any = Object.keys(data.myScore)
+                let value : any = Object.values(data.myScore)
                 // setCheckRivalScore(data)
-                setCheckRivalScore({ ...checkDefendScore, [key] : value });
+                setCheckRivalScore({ ...checkRivalScore, [key] : value });
             });
         // }
 
@@ -112,7 +120,7 @@ const Ground: React.FC = () => {
 
       });
     
-      console.log('checkDefendScore', checkDefendScore[gameRound - Math.floor(gameRound) === 0 ? '1.5':'1'])
+    //   console.log('checkRivalScore', checkRivalScore[gameRound - Math.floor(gameRound) === 0 ? '1.5':'1'])
 
 
     const gameStart = () : void => {
@@ -126,15 +134,7 @@ const Ground: React.FC = () => {
         setGameStatus(gameStatus + 1)
     }
 
-    // 새로고침 경고 관련 코드
-    useEffect(() => {
-        window.addEventListener('beforeunload', (event) => {
-            // 표준에 따라 기본 동작 방지
-            event.preventDefault();
-            // Chrome에서는 returnValue 설정이 필요함
-            event.returnValue = '게임이 초기화 될 수 있습니다.';
-        });
-    })
+
 
     const selectNum = (event:any) :void => {
         const numberChoice = event.currentTarget.value
@@ -213,7 +213,6 @@ const Ground: React.FC = () => {
         socket.emit('teamReady', {room: roomId, readySignal });
         
         teamId += 0.5;
-        console.log('234234')
         
     }
 
@@ -289,8 +288,8 @@ const Ground: React.FC = () => {
         let totalStrikeCnt = 0;
         let ballCount : number  = 0;
         let resultBallCnt : number = 0;
-        console.log('rivalAttackNum use1', rivalAttackNum)        
-        console.log('rivalAttackNum use2', checkDefendScore['1.5']?.[0]?.[0] )
+        // console.log('rivalAttackNum use1', rivalAttackNum)        
+        // console.log('rivalAttackNum use2', checkRivalScore['1.5']?.[0]?.[0] )
         setMatchHitCnt(0);
         setMatchStrikeCnt(0);
         setMatchBallCnt(0);
@@ -302,15 +301,15 @@ const Ground: React.FC = () => {
             console.log('rival to 3', rivalAttackNum)
             console.log('rival to 2', determineMyAttackNum[el])
 
-                if (checkDefendScore?.[gameRound - Math.floor(gameRound) === 0 ? '1.5':'1']?.[0].indexOf(rivalAttackNum?.[el]) !== -1 && rivalAttackNum?.indexOf(rivalAttackNum?.[el]) === el) {
+                if (checkRivalScore?.[gameRound - Math.floor(gameRound) === 0 ? '1.5':'1']?.[0].indexOf(rivalAttackNum?.[el]) !== -1 && rivalAttackNum?.indexOf(rivalAttackNum?.[el]) === el) {
                     ballCount+=1;
                     setMatchBallCnt(ballCount);
                 }
            
 
-            if(rivalAttackNum?.[el] === checkDefendScore?.[gameRound - Math.floor(gameRound) === 0 ? '1.5':'1']?.[0]?.[el] && rivalAttackNum?.[el] !== undefined ){
+            if(rivalAttackNum?.[el] === checkRivalScore?.[gameRound - Math.floor(gameRound) === 0 ? '1.5':'1']?.[0]?.[el] && rivalAttackNum?.[el] !== undefined ){
                 console.log('측정1', rivalAttackNum[el])
-                console.log('측정2', checkDefendScore?.[gameRound - Math.floor(gameRound) === 0 ? '1.5':'1']?.[el])
+                console.log('측정2', checkRivalScore?.[gameRound - Math.floor(gameRound) === 0 ? '1.5':'1']?.[el])
                 
                 checkHitCnt +=1;
                 setMatchHitCnt(checkHitCnt);
@@ -320,7 +319,7 @@ const Ground: React.FC = () => {
                 }
             } 
             
-            if(rivalAttackNum?.[el] !== checkDefendScore?.[gameRound - Math.floor(gameRound) === 0 ? '1.5':'1']?.[0]?.[el] && rivalAttackNum?.[el] !== undefined ){
+            if(rivalAttackNum?.[el] !== checkRivalScore?.[gameRound - Math.floor(gameRound) === 0 ? '1.5':'1']?.[0]?.[el] && rivalAttackNum?.[el] !== undefined ){
     
                 strikeCnt += 1;
                 console.log('스트라이크', strikeCnt);  
@@ -356,7 +355,7 @@ const Ground: React.FC = () => {
         // ScoreCheck(matchHitCnt)
         // setMatchHitCnt(0);
 
-    },[rivalAttackNum, checkDefendScore, attackAction])
+    },[rivalAttackNum, checkRivalScore, attackAction])
     console.log('gameSetCnt',gameSetCnt)
     return(
         <div className="total_back">
