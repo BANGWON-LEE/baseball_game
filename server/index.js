@@ -11,11 +11,18 @@ const io = require('socket.io')(server, {
 });
 
 const rooms = {};
-let visitorCount = 0;
+
+
 
 app.get('/', (req, res) => {
   res.send('API server is running');
 });
+
+let visitorCount = {
+  '1' : 0,
+  '2' : 0,
+  '3' : 0 
+}
 
 io.on('connection', (socket) => {
    console.log('A user connected');
@@ -33,6 +40,8 @@ io.on('connection', (socket) => {
 
    //  });
 
+
+
   socket.on('1', (no) =>{
     console.log('no ref', no);
     io.emit('1', no );
@@ -49,15 +58,18 @@ io.on('connection', (socket) => {
 
 
   socket.on('userCnt', ({room, userCnt}) => {
-    visitorCount = visitorCount + userCnt
-    console.log('접속자 수 userCnt', userCnt)
-        console.log(`접속자 수 Message received from ${socket.id} in room ${room}: ${visitorCount}`);
-    io.to(room).emit('visitorCount',{sender: socket.id , visitorCount})
+
+    
+  visitorCount[`${room}`] += userCnt;
+
+      console.log('visi room',  visitorCount)
+      console.log(`접속자 수 Message received from ${socket.id} in room ${room}: ${visitorCount}`);
+    io.to(room).emit('visitorCount',{ visitorCount})
   });
     
   socket.on('teamName', ({room, teamName}) => {
     console.log("teamName",teamName);
-        console.log(`이름 Message received from ${socket.id} in room ${room}: ${teamName}`);
+    console.log(`이름 Message received from ${socket.id} in room ${room}: ${teamName}`);
     io.to(room).emit('responseTeamName',{sender: socket.id , teamName})
   });
 
@@ -69,28 +81,27 @@ io.on('connection', (socket) => {
 
   socket.on('joinReady', ({room, joinReady}) => {
     console.log("준비name",joinReady);
-        console.log(`준비 Message received from ${socket.id} in room ${room}: ${joinReady}`);
+    console.log(`준비 Message received from ${socket.id} in room ${room}: ${joinReady}`);
     io.to(room).emit('joinReady',{sender: socket.id , joinReady})
   });
 
-// socket.on('gameScore',  ({room, data}) => {
-//    console.log(data);
+socket.on('gameScore',  ({room, homeTeamScore}) => {
+    console.log(homeTeamScore);
+    console.log(`게임 스코어 Message received from ${socket.id} in room ${room}: ${homeTeamScore}`);
+   io.to(room).emit('gameScore',{ sender: socket.id, homeTeamScore })
+});
 
-//       console.log(`Message received from ${socket.id} in room ${room}: ${data}`);
-//    io.to(room).emit('gameScore',{data, sender: socket.id })
-// });
+socket.on('Attack',  ({room, determineMyAttackNum}) => {
+  console.log(determineMyAttackNum);
+  console.log(`Message received from ${socket.id} in room ${room}: ${determineMyAttackNum}`);
+  io.to(room).emit('Attack',{sender: socket.id, determineMyAttackNum })
+});
 
-// socket.on('Attack',  ({room, data}) => {
-//    console.log(data);
-//       console.log(`Message received from ${socket.id} in room ${room}: ${data}`);
-//    io.to(room).emit('Attack',{data, sender: socket.id })
-// });
-
-// socket.on('teamReady', ({room, data}) => {
-//    console.log(data);
-//       console.log(`Message received from ${socket.id} in room ${room}: ${data}`);
-//    io.to(room).emit('teamReady',{data, sender: socket.id })
-// });
+socket.on('teamReady', ({room, readySignal}) => {
+   console.log(readySignal);
+      console.log(`Message received from ${socket.id} in room ${room}: ${readySignal}`);
+   io.to(room).emit('teamReady',{ sender: socket.id, readySignal })
+});
 
 // socket.on('situation', ({room, data}) => {
 //    console.log(data);
@@ -98,11 +109,11 @@ io.on('connection', (socket) => {
 //    io.to(room).emit('situation',{data, sender: socket.id })
 // });
 
-// socket.on('round',  ({room, data}) => {
-//    console.log(data);
-//       console.log(`Message received from ${socket.id} in room ${room}: ${data}`);
-//    io.to(room).emit('round',{data, sender: socket.id })
-// });
+socket.on('round',  ({room, gameRound}) => {
+   console.log(gameRound);
+      console.log(`Message received from ${socket.id} in room ${room}: ${gameRound}`);
+   io.to(room).emit('round',{sender: socket.id, gameRound })
+});
 
 // socket.on('teamReady', ({room, data}) => {
 //    console.log(data);
@@ -116,11 +127,11 @@ io.on('connection', (socket) => {
 //    io.to(room).emit('gameScore',{data, sender: socket.id })
 // });
 
-// socket.on('rivalOutNum',  ({room, data}) => {
-//    console.log('rivalOutNum',data);
-//       console.log(`Message received from ${socket.id} in room ${room}: ${data}`);
-//    io.to(room).emit('rivalOutNum',{data, sender: socket.id })
-// });
+socket.on('rivalOutNum',  ({room, myScore}) => {
+   console.log('rivalOutNum',myScore);
+      console.log(`Message received from ${socket.id} in room ${room}: ${myScore}`);
+   io.to(room).emit('rivalOutNum',{sender: socket.id, myScore })
+});
 
 
 });
