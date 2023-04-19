@@ -38,40 +38,40 @@ const Main: React.FC = () => {
   };
 
 
-
-
+  const [userCntCheck, setUserCntCheck] = useState<number[]>([])
+  const [roomNumCheck, setRoomNumCheck] = useState<string>('')
+  const [roomChoiceStage, setRoomChoiceStage] = useState<Boolean>(false)
 
   useEffect(() => {
-    console.log('유즈이펙트 횟수');
+    // console.log('유즈이펙트 횟수');
     socket.emit('joinRoom', roomId);
-
-  
-   
-  
-    // window.addEventListener("unload", handleDisconnect);
+    // main 입장시 방에 있는 인원 체크
+    socket.emit('userCnt', { room: null, userCnt: 0 });
   
     socket.on('disconnect', handleDisconnect);
   
-    const handleVisitorCount = (data: any) => {
-      if (data.visitorCount === 2) {
-        // alert('방에 참여 인원이 모두 찼습니다.');
-      }
-    };
-    socket.on('visitorCount', handleVisitorCount);
-  
-    // // 소켓이 연결되었을 때 실행되는 콜백 함수
-    // const handleConnect = () => {
-    //   // 이곳에서 초기화 작업을 수행합니다.
-    // };
-    // socket.on('connect', handleConnect);
-  
+
+    socket.on('visitorCount', (data) => {
+      console.log('visitor', data.visitorCount?.['1'])
+      setUserCntCheck(data.visitorCount)
+      setRoomNumCheck(data.room)
+
+      // if(data.visitorCount?.['1'] >= 1 && roomChoiceStage === false && stage !== '1' ){
+      //   console.log('뭐야')
+      //   socket.emit('userCnt', { room: roomId, userCnt: removeUserCnt });
+      // }
+
+    });
+    
+
+ 
     return () => {
       socket.off('disconnect', handleDisconnect);
-      socket.off('visitorCount', handleVisitorCount);
-      // socket.off('connect', handleConnect);
-      // window.removeEventListener("unload", handleDisconnect);
+    
+ 
     };
-  }, [roomId, socket, userCnt, removeUserCnt]);
+  },[]);
+
 
   
   let joinStep:number = 0; 
@@ -79,23 +79,11 @@ const Main: React.FC = () => {
   const [resultJoinStep, setResultJoinStep] = useState<number>(0)
   const registerTeam = () : void => {
     socket.emit('teamName', { room: roomId, teamName });
-    // socket.emit('teamName', teamName);
-    // if(teamId === undefined){
-      //   setTeamId(teamId-0.5)
-      // } else {
-        //   setTeamId(teamId-1)
-        // }
-        
-        // forTurnDivide += 0.5;
-        // setTeamId(teamId - forTurnDivide)
-        // console.log('teamID', teamId);
-        // if(userReady === 'true'){
+
           joinStep += 1;
           console.log('더한 스텝', joinStep)
           socket.emit('joinStep', { room: roomId, joinStep });
-          
-          
-          // }
+
           setResultName(true);
           setRivalNameCheck(true);
         }
@@ -123,13 +111,7 @@ const Main: React.FC = () => {
     if(rivalNameCheck=== true && teamName){
     // const checkSocket = () =>{
     socket.on('responseTeamName', (data) => {
-        console.log('보자보자', data.teamName)
-        console.log('보자보자 이름', teamName)
-        // if(teamName === data.teamName){
-          
-            // setRivalTeamName(rivalTeamName.concat(data.teamName));
-            setRivalTeamName((rivalTeamName) => [...rivalTeamName, data.teamName])
-        // }
+      setRivalTeamName((rivalTeamName) => [...rivalTeamName, data.teamName])
     });
 
     socket.on('joinStep', (data) => {
@@ -142,21 +124,20 @@ const Main: React.FC = () => {
   });
 
     }
-    // checkSocket();
-  // }
+
   setRivalNameCheck(false);
 
   },[teamName, rivalNameCheck]);
-  console.log('resultJoin', resultJoinStep)
-  console.log('rivalTeamName', rivalTeamName.length)
-  console.log('userReady', userReady)
+  // console.log('resultJoin', resultJoinStep)
+  // console.log('rivalTeamName', rivalTeamName.length)
+  // console.log('userReady', userReady)
 
 
 
 
   console.log('스텝', resultJoinStep)
 
-  const [roomChoiceStage, setRoomChoiceStage] = useState<Boolean>(false)
+
 
   
   interface BtnType
@@ -179,26 +160,37 @@ const Main: React.FC = () => {
     ]  
   }
   
-  const EnterRoom = () =>{
+  const EnterRoom = ({setRoomChoiceStage, roomNumCheck, userCntCheck}:any) =>{
+
+   
 
       const joinRoom = ({roomNum}:any) => {
-        console.log('234234', roomNum)
-        socket.emit('userCnt', { room: roomNum, userCnt });
+
+        if( userCntCheck['1'] === 1 && stage !== '1' ){
+          console.log('하늘하늘ㄴ')
+          // socket.emit('userCnt', { room: roomNum, userCnt: removeUserCnt });
+          // console.log('!!!!@@@@')
+          // navigate(-1);
+          // setRoomChoiceStage(false)
+          return
+        }
+
+
         setRoomChoiceStage(true)
+        socket.emit('userCnt', { room: roomNum, userCnt });
+   
         
         setSearchParams({ no: roomNum, stage:'1' })
       }
+
+      console.log('userCntCheck', userCntCheck['1'])
 
     return( 
       <>
       {numObject.num.map((num : Line) => (
        console.log('dfd',num['no']), 
-      <div className="project_title_change">
-        {/* <Link key={"room " + num['no']} to={`/room?no=${num['no']}`} > */}
-          {/* { num['no'] === '1' && storedData === 2 ? null : */}
-          <button className="project_title_change_team_name" onClick={() => joinRoom({roomNum : num['no']})}  >{num['no'] +"번 방"}</button>          
-          {/* } */}
-          {/* </Link> */}
+      <div key={"room " + num['no']} className="project_title_change">
+          <button className="project_title_change_team_name" onClick={() => joinRoom({roomNum : num['no']})}   >{num['no'] +"번 방"}</button>          
       </div>
         ))
     }
@@ -241,6 +233,7 @@ const Main: React.FC = () => {
   }
 
   const moveBack = () => {
+    socket.emit('userCnt', { room: roomId, userCnt: removeUserCnt });
     navigate(-1);
     setRoomChoiceStage(false)
   }
@@ -264,9 +257,9 @@ const Main: React.FC = () => {
         <div className="project_content">
           <div>
             { roomChoiceStage === false && stage !== '1' &&
-            <EnterRoom />
+            <EnterRoom setRoomChoiceStage={setRoomChoiceStage} roomNumCheck={roomNumCheck} userCntCheck={userCntCheck} />
             }
-            {resultName === false && roomChoiceStage === true && stage === '1'&&
+            {resultName === false && stage === '1'&&
               <>
                 <div>
                   <input 
