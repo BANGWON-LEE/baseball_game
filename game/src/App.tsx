@@ -5,9 +5,11 @@ import Main from './components/Main';
 import Ground from './components/Ground';
 import Enter from './components/Enter';
 import {BrowserRouter, Routes, Route} from 'react-router-dom';
+import { RecoilRoot } from 'recoil';
 
 const App: React.FC = () => {
   return (
+    <RecoilRoot>
       <BrowserRouter>
         <Routes>
           {/* <Route  element={<Enter />} path="/" /> */}
@@ -15,6 +17,7 @@ const App: React.FC = () => {
           <Route  element={<Ground />} path="/game" />
         </Routes>
       </BrowserRouter> 
+    </RecoilRoot>
   );
 }
 
