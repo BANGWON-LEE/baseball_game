@@ -2,8 +2,10 @@ import React, { useState, createContext, useEffect } from "react";
 import { Link, useRoutes, useNavigate } from "react-router-dom";
 import { useSearchParams } from "react-router-dom";
 import '../styles/component.scss'
-
+import {useRecoilState} from "recoil"
 import io from "socket.io-client";
+import { checkRoomUserCntApi, joinRoomApi } from "../api/room";
+import { roomUserCntState } from "../recoil/atoms";
 export const socket = io('localhost:5000');
 
 export const SocketContext = createContext ;
@@ -33,46 +35,54 @@ const Main: React.FC = () => {
   const userCnt : number = 1;
   const removeUserCnt : number = -1;
 
-  const handleDisconnect = () => {
-    socket.emit('userCnt', { room: roomId, userCnt: removeUserCnt });
-  };
+  // const handleDisconnect = () => {
+  //   // socket.emit('userCnt', { room: roomId, userCnt: removeUserCnt });
+  //   let joinCnt = -1
+  //   const roomUserCntUpdate = {'room_no' : roomId, 'user_cnt' : joinCnt}
+  //   joinRoomApi(roomUserCntUpdate);
+  // };
 
 
   const [userCntCheck, setUserCntCheck] = useState<number[]>([])
   const [roomNumCheck, setRoomNumCheck] = useState<string>('')
   const [roomChoiceStage, setRoomChoiceStage] = useState<Boolean>(false)
+  const [roomUserCnt, setRoomUserCnt] = useRecoilState(roomUserCntState)  
+
+  async function getRoomUserCnt(){
+    console.log('시작')
+    const roomUserCntApi = await checkRoomUserCntApi();
+    console.log('roomUserCntApi',roomUserCntApi);
+    setRoomUserCnt(roomUserCntApi)
+
+  }
 
   useEffect(() => {
-    // console.log('유즈이펙트 횟수');
+    // 방에 접속한 인원수 체크를 위함
+    getRoomUserCnt();
+    console.log('유즈이펙트 횟수');
     socket.emit('joinRoom', roomId);
-    // main 입장시 방에 있는 인원 체크
-    socket.emit('userCnt', { room: null, userCnt: 0 });
+    // window.addEventListener("unload", handleDisconnect);
+
   
-    socket.on('disconnect', handleDisconnect);
+    // socket.on('disconnect',);
   
-
-    socket.on('visitorCount', (data) => {
-      console.log('visitor', data.visitorCount?.['1'])
-      setUserCntCheck(data.visitorCount)
-      setRoomNumCheck(data.room)
-
-      // if(data.visitorCount?.['1'] >= 1 && roomChoiceStage === false && stage !== '1' ){
-      //   console.log('뭐야')
-      //   socket.emit('userCnt', { room: roomId, userCnt: removeUserCnt });
-      // }
-
-    });
-    
-
- 
-    return () => {
-      socket.off('disconnect', handleDisconnect);
-    
- 
+    const handleVisitorCount = (data: any) => {
+      if (data.visitorCount === 2) {
+        // alert('방에 참여 인원이 모두 찼습니다.');
+      }
     };
-  },[]);
+    socket.on('visitorCount', handleVisitorCount);
+  
+ 
+  
+    return () => {
+      // socket.off('disconnect', handleDisconnect);
+      socket.off('visitorCount', handleVisitorCount);
 
+    };
+  }, [roomId, socket, userCnt, removeUserCnt])
 
+  console.log('roomUserCnt',roomUserCnt)
   
   let joinStep:number = 0; 
   // let resultJoinStep:number = 0;
@@ -132,13 +142,6 @@ const Main: React.FC = () => {
   // console.log('rivalTeamName', rivalTeamName.length)
   // console.log('userReady', userReady)
 
-
-
-
-  console.log('스텝', resultJoinStep)
-
-
-
   
   interface BtnType
   {
@@ -160,12 +163,21 @@ const Main: React.FC = () => {
     ]  
   }
   
-  const EnterRoom = ({setRoomChoiceStage, roomNumCheck, userCntCheck}:any) =>{
+  const EnterRoom = ({setRoomChoiceStage, roomNumCheck, userCntCheck, roomUserCnt}:any) =>{
 
    
 
-      const joinRoom = ({roomNum}:any) => {
-
+      const joinRoom = async ({roomNum}:any) => {
+        // getRoomUserCnt();
+        console.log('user user', roomUserCnt);
+        const isUserCntFull = roomUserCnt.some(
+          (user: any) => user['room_no'] === roomNum && user['user_cnt'] === '2'
+        );
+      
+        if (isUserCntFull) {
+          alert('인원이 모두 입장했으므로 입장 하실 수 없습니다.');
+          return;
+        }
         if( userCntCheck['1'] === 1 && stage !== '1' ){
           console.log('하늘하늘ㄴ')
           // socket.emit('userCnt', { room: roomNum, userCnt: removeUserCnt });
@@ -177,8 +189,11 @@ const Main: React.FC = () => {
 
 
         setRoomChoiceStage(true)
-        socket.emit('userCnt', { room: roomNum, userCnt });
-   
+        // socket.emit('userCnt', { room: roomNum, userCnt });
+        let joinCnt = 1;
+
+        const roomUserCntUpdate = {'room_no' : roomNum, 'user_cnt' : joinCnt}
+       joinRoomApi(roomUserCntUpdate);
         
         setSearchParams({ no: roomNum, stage:'1' })
       }
@@ -186,15 +201,27 @@ const Main: React.FC = () => {
       console.log('userCntCheck', userCntCheck['1'])
 
     return( 
-      <>
-      {numObject.num.map((num : Line) => (
-       console.log('dfd',num['no']), 
-      <div key={"room " + num['no']} className="project_title_change">
-          <button className="project_title_change_team_name" onClick={() => joinRoom({roomNum : num['no']})}   >{num['no'] +"번 방"}</button>          
-      </div>
+      <div>
+        <div  className="project-block btn-block">
+        {numObject.num.map((num : Line) => (
+          console.log('dfd',num['no']), 
+        <div key={"room " + num['no']} className="project_title_change">
+          <button className="project_title_change_team_name room-btn" onClick={() => joinRoom({roomNum : num['no']})}   >{num['no'] +"번 방"}</button>          
+        </div>
+          ))
+        }
+        </div>
+        <div  className="project-block">
+        {
+        roomUserCnt.map((user:any) => (
+        <div className={`project-block_user-cnt${user['room_no']}`}>
+          {user['user_cnt']}명 입장
+        </div>
         ))
-    }
-    </> 
+        }
+        </div>
+      
+    </div> 
     )
   }
 
@@ -233,7 +260,10 @@ const Main: React.FC = () => {
   }
 
   const moveBack = () => {
-    socket.emit('userCnt', { room: roomId, userCnt: removeUserCnt });
+    // socket.emit('userCnt', { room: roomId, userCnt: removeUserCnt });
+    let joinCnt = -1;
+    const roomUserCntUpdate = {'room_no' : roomId, 'user_cnt' : joinCnt}
+    joinRoomApi(roomUserCntUpdate);
     navigate(-1);
     setRoomChoiceStage(false)
   }
@@ -257,7 +287,7 @@ const Main: React.FC = () => {
         <div className="project_content">
           <div>
             { roomChoiceStage === false && stage !== '1' &&
-            <EnterRoom setRoomChoiceStage={setRoomChoiceStage} roomNumCheck={roomNumCheck} userCntCheck={userCntCheck} />
+            <EnterRoom setRoomChoiceStage={setRoomChoiceStage} roomNumCheck={roomNumCheck} userCntCheck={userCntCheck} roomUserCnt={roomUserCnt} />
             }
             {resultName === false && stage === '1'&&
               <>
