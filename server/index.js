@@ -22,8 +22,8 @@ let roomStageStep = {'1' : 0,'2' : 0, '3' : 0};
 
 
 app.put('/api/room/join', function(req, res) {
-  disconnected = false;
-  clearTimeout(timer);
+  // disconnected = false;
+  // clearTimeout(timer);
 
     const params = req.body
     // let roomKey = params['room_no']
@@ -64,8 +64,8 @@ app.put('/api/room/join', function(req, res) {
 );
 
 app.get('/api/room/user', function(req, res) {
-  disconnected = false;
-  clearTimeout(timer);
+  // disconnected = false;
+  // clearTimeout(timer);
   db.query(
     //  values("adminUser", "1234","관리자", 0.0, 0.0, 0.0);
     "SELECT room_no, user_cnt FROM tb_room",(err,result) => {
@@ -84,8 +84,8 @@ app.get('/api/room/user', function(req, res) {
 
 app.put('/api/room/stage', function(req, res) {
 
-  disconnected = false;
-  clearTimeout(timer);
+  // disconnected = false;
+  // clearTimeout(timer);
     const params = req.body
 
 
