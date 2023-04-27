@@ -1,5 +1,4 @@
-# baseball_game
-<h1>숫자 야구 게임</h1>
+# baseball_game(숫자 야구게임)
 
 <h5>사용 스킬 : typescript, react, socket.io, recoil </p>
 
