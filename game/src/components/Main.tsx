@@ -1,5 +1,5 @@
 import React, { useState, createContext, useEffect } from "react";
-import { Link, useRoutes, useNavigate } from "react-router-dom";
+import { Link, useRoutes, useNavigate, useLocation } from "react-router-dom";
 import { useSearchParams } from "react-router-dom";
 import '../styles/component.scss'
 import {useRecoilState} from "recoil"
@@ -31,6 +31,7 @@ const Main: React.FC = () => {
 
   
   const navigate = useNavigate();
+  const location = useLocation();
   
   const userCnt : number = 1;
   const removeUserCnt : number = -1;
@@ -41,10 +42,6 @@ const Main: React.FC = () => {
   //   const roomUserCntUpdate = {'room_no' : roomId, 'user_cnt' : joinCnt}
   //   joinRoomApi(roomUserCntUpdate);
   // };
-
-
-  const [userCntCheck, setUserCntCheck] = useState<number[]>([])
-  const [roomNumCheck, setRoomNumCheck] = useState<string>('')
   const [roomChoiceStage, setRoomChoiceStage] = useState<Boolean>(false)
   const [roomUserCnt, setRoomUserCnt] = useRecoilState(roomUserCntState)  
 
@@ -55,6 +52,50 @@ const Main: React.FC = () => {
     setRoomUserCnt(roomUserCntApi)
 
   }
+
+  const getEnterRoomUserCnt =async(roomNum:any) => {
+        let joinCnt = 1;
+    console.log('getEnter 시작')
+    console.log('isUserCntFull 시작', roomNum)
+    const roomUserCntApi = await checkRoomUserCntApi();
+    console.log('getEnter roomUserCntApi 시작',roomUserCntApi);
+    // setRoomUserCnt(roomUserCntApi)
+
+    const isUserCntFull = roomUserCntApi.some(
+      (user: any) => user['room_no'] === roomNum && user['user_cnt'] === '2',
+  
+    );
+  
+    console.log('getEnter isUserCntFull 시작',isUserCntFull);
+
+    if (isUserCntFull) {
+      alert('인원이 모두 입장했으므로 입장 하실 수 없습니다.');
+      return;
+    }
+
+    setRoomChoiceStage(true)
+      
+    
+
+    const roomUserCntUpdate = {'room_no' : roomNum, 'user_cnt' : joinCnt}
+   joinRoomApi(roomUserCntUpdate);
+    
+    setSearchParams({ no: roomNum, stage:'1' })
+
+  }
+
+
+  useEffect(() => {
+    const handleBackButton = () => {
+      navigate(`${location.pathname}`);
+    };
+
+    window.addEventListener('popstate', handleBackButton);
+
+    return () => {
+      window.removeEventListener('popstate', handleBackButton);
+    };
+  }, [navigate]);
 
   useEffect(() => {
     // 방에 접속한 인원수 체크를 위함
@@ -67,8 +108,10 @@ const Main: React.FC = () => {
     // socket.on('disconnect',);
   
     const handleVisitorCount = (data: any) => {
+      console.log('방방ㅂ아')
       if (data.visitorCount === 2) {
-        // alert('방에 참여 인원이 모두 찼습니다.');
+        alert('방에 참여 인원이 모두 찼습니다.');
+        return
       }
     };
     socket.on('visitorCount', handleVisitorCount);
@@ -163,45 +206,48 @@ const Main: React.FC = () => {
     ]  
   }
   
-  const EnterRoom = ({setRoomChoiceStage, roomNumCheck, userCntCheck, roomUserCnt}:any) =>{
+  const EnterRoom = ({setRoomChoiceStage,  roomUserCnt}:any) =>{
 
    
 
-      const joinRoom = async ({roomNum}:any) => {
+      const joinRoom = ({roomNum}:any) => {
+ 
         // getRoomUserCnt();
-        console.log('user user', roomUserCnt);
-        const isUserCntFull = roomUserCnt.some(
-          (user: any) => user['room_no'] === roomNum && user['user_cnt'] === '2'
-        );
-      
-        if (isUserCntFull) {
-          alert('인원이 모두 입장했으므로 입장 하실 수 없습니다.');
-          return;
-        }
-        if( userCntCheck['1'] === 1 && stage !== '1' ){
-          console.log('하늘하늘ㄴ')
-          // socket.emit('userCnt', { room: roomNum, userCnt: removeUserCnt });
-          // console.log('!!!!@@@@')
-          // navigate(-1);
-          // setRoomChoiceStage(false)
-          return
-        }
-
-
-        setRoomChoiceStage(true)
-        // socket.emit('userCnt', { room: roomNum, userCnt });
-        let joinCnt = 1;
-
-        const roomUserCntUpdate = {'room_no' : roomNum, 'user_cnt' : joinCnt}
-       joinRoomApi(roomUserCntUpdate);
+        // getRoomUserCnt();
+        console.log('roomNum 시시작', roomNum)
+         getEnterRoomUserCnt(roomNum)
+        // console.log('user user', roomUserCnt);
         
-        setSearchParams({ no: roomNum, stage:'1' })
+        // socket.emit('userCnt', { room: roomNum, joinCnt });
+        
+        // const isUserCntFull = roomUserCnt.some(
+        //   (user: any) => user['room_no'] === roomNum && user['user_cnt'] === '2'
+        // );
+      
+        // if (isUserCntFull) {
+        //   alert('인원이 모두 입장했으므로 입장 하실 수 없습니다.');
+        //   return;
+        // }
+        // if( userCntCheck['1'] === 1 && stage !== '1' ){
+        //   console.log('하늘하늘ㄴ')
+        //   // socket.emit('userCnt', { room: roomNum, userCnt: removeUserCnt });
+        //   // console.log('!!!!@@@@')
+        //   // navigate(-1);
+        //   // setRoomChoiceStage(false)
+        //   return
+        // }
+
+
+
       }
 
-      console.log('userCntCheck', userCntCheck['1'])
 
     return( 
       <div>
+        
+          <div className="room-refresh">
+            <button className="room-refresh_btn" onClick={()=>getRoomUserCnt()}>새로고침</button>
+          </div>
         <div  className="project-block btn-block">
         {numObject.num.map((num : Line) => (
           console.log('dfd',num['no']), 
@@ -259,6 +305,39 @@ const Main: React.FC = () => {
     )
   }
 
+  const RegisterTeamName = () => {
+    return(
+      <>
+                <div>
+                  <input 
+                    type="text" 
+                    placeholder="팀명을 입력하세요." 
+                    className="project_content_title"   
+                    onChange={(e) => setTeamName(e.target.value)} 
+                    onKeyPress={(e) => {
+                      if (e.key === "Enter") {
+                        registerTeam();
+                      }
+                    }}
+                  />
+                  <button onClick={()=>registerTeam()} className="project_content_btn">
+                    등록
+                  </button>
+                  {rivalTeamName.length === 0 &&
+                  <p>
+                    팀명을 입력해주세요
+                  </p>
+                  }
+                  <div>
+                    <button onClick={()=>moveBack()} className="project_back_btn">
+                      뒤로 가기
+                    </button>
+                  </div>
+                </div> 
+              </>
+    )
+  }
+ 
   const moveBack = () => {
     // socket.emit('userCnt', { room: roomId, userCnt: removeUserCnt });
     let joinCnt = -1;
@@ -287,37 +366,10 @@ const Main: React.FC = () => {
         <div className="project_content">
           <div>
             { roomChoiceStage === false && stage !== '1' &&
-            <EnterRoom setRoomChoiceStage={setRoomChoiceStage} roomNumCheck={roomNumCheck} userCntCheck={userCntCheck} roomUserCnt={roomUserCnt} />
+            <EnterRoom setRoomChoiceStage={setRoomChoiceStage} roomUserCnt={roomUserCnt} />
             }
-            {resultName === false && stage === '1'&&
-              <>
-                <div>
-                  <input 
-                    type="text" 
-                    placeholder="팀명을 입력하세요." 
-                    className="project_content_title"   
-                    onChange={(e) => setTeamName(e.target.value)} 
-                    onKeyPress={(e) => {
-                      if (e.key === "Enter") {
-                        registerTeam();
-                      }
-                    }}
-                  />
-                  <button onClick={()=>registerTeam()} className="project_content_btn">
-                    등록
-                  </button>
-                  {rivalTeamName.length === 0 &&
-                  <p>
-                    팀명을 입력해주세요
-                  </p>
-                  }
-                  <div>
-                    <button onClick={()=>moveBack()} className="project_back_btn">
-                      뒤로 가기
-                    </button>
-                  </div>
-                </div> 
-              </>
+            {resultName === false && stage === '1'&& 
+             <RegisterTeamName/>
             }
           </div>
         </div>
