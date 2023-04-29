@@ -19,7 +19,9 @@ app.use(cors());
 app.use(express.json());
 let totalJoinCnt = {'1' : 0,'2' : 0, '3' : 0};
 let roomStageStep = {'1' : 0,'2' : 0, '3' : 0};
+io.on('connection', (socket) => {
 
+  console.log('A user connected');
 
 app.put('/api/room/join', function(req, res) {
   // disconnected = false;
@@ -33,10 +35,14 @@ app.put('/api/room/join', function(req, res) {
 
 
   
-    if(totalJoinCnt[`${params['room_no']}`]< 2 && params['user_cnt'] !== 0){
-    console.log('방 체크 확인')
-       totalJoinCnt[`${params['room_no']}`] += params['user_cnt'];
-    } else if (totalJoinCnt[`${params['room_no']}`] >= 2 && params['user_cnt'] === 0){
+    if(totalJoinCnt[`${params['room_no']}`]< 2 && params['user_cnt'] === 1){
+      console.log('방 체크 확인 플러스', params['user_cnt'])
+      totalJoinCnt[`${params['room_no']}`] += params['user_cnt'];
+    }else if(totalJoinCnt[`${params['room_no']}`]>0 && params['user_cnt'] === -1){
+      console.log('방 체크 확인 마이너스', params['user_cnt'])
+      totalJoinCnt[`${params['room_no']}`] += params['user_cnt'];
+    
+     }else if (totalJoinCnt[`${params['room_no']}`] >= 2 && params['user_cnt'] === 0){
        totalJoinCnt[`${params['room_no']}`] *= params['user_cnt']
     }
       //  totalJoinCnt[`${params['room_no']}`].toString();
@@ -46,6 +52,7 @@ app.put('/api/room/join', function(req, res) {
     if(totalJoinCnt[`${params['room_no']}`] < 0 ){
       totalJoinCnt[`${params['room_no']}`] *= 0
     }
+    
 
     db.query(
       //  values("adminUser", "1234","관리자", 0.0, 0.0, 0.0);
@@ -122,8 +129,7 @@ let visitorCount = {
 
 let disconnected = false;
 
-io.on('connection', (socket) => {
-  console.log('A user connected');
+
 
    // socket.on('joinRoom', room => {
    //    if (!rooms[room]) {
@@ -270,7 +276,7 @@ const timer = setTimeout(() => {
     }
     // socket.end();
   }
-}, 120000);
+}, 90000);
 
 
 socket.on('disconnect', () => {
