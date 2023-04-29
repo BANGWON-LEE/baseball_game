@@ -8,6 +8,26 @@
     flex-direction: column;
     justify-content: flex-start;
     margin: 0 auto;
+    
+      .room-refresh{
+        position: relative;
+        bottom: 35px;
+
+        &_btn{
+          height: auto;
+          width: auto;
+          vertical-align: bottom;
+          border-radius: 8px;
+          border: none;
+          // border: 1.5px solid rgb(59, 200, 255);
+          background-color: skyblue;
+          font-size: 13px;
+          font-weight: 700;
+          color: azure;
+          padding: 10px;
+          cursor: pointer;
+        }
+      }
   
 
       .project-block{
