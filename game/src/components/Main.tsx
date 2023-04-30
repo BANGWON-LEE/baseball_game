@@ -244,10 +244,9 @@ const Main: React.FC = () => {
 
     return( 
       <div>
-        
-          <div className="room-refresh">
-            <button className="room-refresh_btn" onClick={()=>getRoomUserCnt()}>새로고침</button>
-          </div>
+        <div className="room-refresh">
+          <button className="room-refresh_btn" onClick={()=>getRoomUserCnt()}>새로고침</button>
+        </div>
         <div  className="project-block btn-block">
         {numObject.num.map((num : Line) => (
           console.log('dfd',num['no']), 
@@ -304,39 +303,6 @@ const Main: React.FC = () => {
     </>
     )
   }
-
-  const RegisterTeamName = () => {
-    return(
-      <>
-                <div>
-                  <input 
-                    type="text" 
-                    placeholder="팀명을 입력하세요." 
-                    className="project_content_title"   
-                    onChange={(e) => setTeamName(e.target.value)} 
-                    onKeyPress={(e) => {
-                      if (e.key === "Enter") {
-                        registerTeam();
-                      }
-                    }}
-                  />
-                  <button onClick={()=>registerTeam()} className="project_content_btn">
-                    등록
-                  </button>
-                  {rivalTeamName.length === 0 &&
-                  <p>
-                    팀명을 입력해주세요
-                  </p>
-                  }
-                  <div>
-                    <button onClick={()=>moveBack()} className="project_back_btn">
-                      뒤로 가기
-                    </button>
-                  </div>
-                </div> 
-              </>
-    )
-  }
  
   const moveBack = () => {
     // socket.emit('userCnt', { room: roomId, userCnt: removeUserCnt });
@@ -369,7 +335,34 @@ const Main: React.FC = () => {
             <EnterRoom setRoomChoiceStage={setRoomChoiceStage} roomUserCnt={roomUserCnt} />
             }
             {resultName === false && stage === '1'&& 
-             <RegisterTeamName/>
+             <>
+                <div>
+                  <input 
+                    type="text" 
+                    placeholder="팀명을 입력하세요." 
+                    className="project_content_title"   
+                    onChange={(e) => setTeamName(e.target.value)} 
+                    onKeyPress={(e) => {
+                      if (e.key === "Enter") {
+                        registerTeam();
+                      }
+                    }}
+                  />
+                  <button onClick={()=>registerTeam()} className="project_content_btn">
+                    등록
+                  </button>
+                  {rivalTeamName.length === 0 &&
+                  <p>
+                    팀명을 입력해주세요
+                  </p>
+                  }
+                  <div>
+                    <button onClick={()=>moveBack()} className="project_back_btn">
+                      뒤로 가기
+                    </button>
+                  </div>
+                </div> 
+              </>
             }
           </div>
         </div>
