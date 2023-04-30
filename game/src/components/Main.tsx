@@ -1,5 +1,5 @@
 import React, { useState, createContext, useEffect } from "react";
-import { Link, useRoutes, useNavigate, useLocation } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useSearchParams } from "react-router-dom";
 import '../styles/component.scss'
 import {useRecoilState} from "recoil"
@@ -10,42 +10,25 @@ export const socket = io('localhost:5000');
 
 export const SocketContext = createContext ;
 
-
-
-
-
 const Main: React.FC = () => {
-
-  
-  
 
   const [teamName, setTeamName] = useState<string>('');
   const [resultName, setResultName] = useState<Boolean>(false)
   const [rivalNameCheck, setRivalNameCheck] = useState<Boolean>(false);
-  const [teamId, setTeamId] = useState<number>(2);
+  // const [teamId, setTeamId] = useState<number>(2);
   const [searchParams, setSearchParams] = useSearchParams();
   const roomId : any  = searchParams.get('no');
   const stage : any  = searchParams.get('stage');
   
-  // const [connectedClients, setConnectedClients] = useState(0);
-
-  
   const navigate = useNavigate();
   const location = useLocation();
-  
-  const userCnt : number = 1;
   const removeUserCnt : number = -1;
 
-  // const handleDisconnect = () => {
-  //   // socket.emit('userCnt', { room: roomId, userCnt: removeUserCnt });
-  //   let joinCnt = -1
-  //   const roomUserCntUpdate = {'room_no' : roomId, 'user_cnt' : joinCnt}
-  //   joinRoomApi(roomUserCntUpdate);
-  // };
   const [roomChoiceStage, setRoomChoiceStage] = useState<Boolean>(false)
   const [roomUserCnt, setRoomUserCnt] = useRecoilState(roomUserCntState)  
 
   async function getRoomUserCnt(){
+    // 방정보를 불러오는 함수
     console.log('시작')
     const roomUserCntApi = await checkRoomUserCntApi();
     console.log('roomUserCntApi',roomUserCntApi);
@@ -53,8 +36,32 @@ const Main: React.FC = () => {
 
   }
 
+  const setUrlRoomDefend =async(roomNum:any) => {
+    // url을 입력해서 방에 들어가려고 함을 방지함
+
+    const roomUserCntApi = await checkRoomUserCntApi();
+    console.log('getEnter roomUserCntApi 시작',roomUserCntApi);
+  
+
+    const isUserCntFull = roomUserCntApi.some(
+      (user: any) => user['room_no'] === roomNum && user['user_cnt'] === '2',
+  
+    );
+  
+    console.log('getEnter isUserCntFull defend 시작',isUserCntFull);
+
+
+
+    if (roomChoiceStage === false && isUserCntFull) {
+      alert('로비를 통해서 방에 접속해주세요.');
+      navigate(-1)
+      return;
+    }
+  }
+
   const getEnterRoomUserCnt =async(roomNum:any) => {
-        let joinCnt = 1;
+    // 방에 입장 시도 할 때 실행되는 함수
+    let joinCnt = 1;
     console.log('getEnter 시작')
     console.log('isUserCntFull 시작', roomNum)
     const roomUserCntApi = await checkRoomUserCntApi();
@@ -66,28 +73,30 @@ const Main: React.FC = () => {
   
     );
   
-    console.log('getEnter isUserCntFull 시작',isUserCntFull);
-
     if (isUserCntFull) {
       alert('인원이 모두 입장했으므로 입장 하실 수 없습니다.');
+      navigate('/')
       return;
     }
 
     setRoomChoiceStage(true)
-      
-    
 
     const roomUserCntUpdate = {'room_no' : roomNum, 'user_cnt' : joinCnt}
-   joinRoomApi(roomUserCntUpdate);
-    
+    joinRoomApi(roomUserCntUpdate);    
     setSearchParams({ no: roomNum, stage:'1' })
-
+    sessionStorage.setItem('roomId', roomNum)
   }
 
+  console.log('roomId 확인', roomId)
 
   useEffect(() => {
+    // 게임 방 입장 시, 세션에 저장된 방번호를 가져와 페이지 이동을 방지함
+    console.log('navi1')
     const handleBackButton = () => {
-      navigate(`${location.pathname}`);
+      const sessionRoomId = sessionStorage.getItem('roomId')
+      console.log('navi2',`${roomId}` )
+      navigate(`${location.pathname}?no=${sessionRoomId}&stage=${1}`);
+      
     };
 
     window.addEventListener('popstate', handleBackButton);
@@ -95,11 +104,21 @@ const Main: React.FC = () => {
     return () => {
       window.removeEventListener('popstate', handleBackButton);
     };
-  }, [navigate]);
+  },[navigate]);
+
 
   useEffect(() => {
     // 방에 접속한 인원수 체크를 위함
-    getRoomUserCnt();
+    console.log('첫 룸 아이디', roomId)
+    console.log('첫 룸 아이디', typeof(roomId))
+    if(roomId !== 'null' && roomId !== null){
+      setUrlRoomDefend(roomId)
+    }else{
+      navigate('/')
+    }
+
+    getRoomUserCnt()
+    
     console.log('유즈이펙트 횟수');
     socket.emit('joinRoom', roomId);
     // window.addEventListener("unload", handleDisconnect);
@@ -123,7 +142,7 @@ const Main: React.FC = () => {
       socket.off('visitorCount', handleVisitorCount);
 
     };
-  }, [roomId, socket, userCnt, removeUserCnt])
+  },[roomId, socket,  removeUserCnt])
 
   console.log('roomUserCnt',roomUserCnt)
   
@@ -181,9 +200,6 @@ const Main: React.FC = () => {
   setRivalNameCheck(false);
 
   },[teamName, rivalNameCheck]);
-  // console.log('resultJoin', resultJoinStep)
-  // console.log('rivalTeamName', rivalTeamName.length)
-  // console.log('userReady', userReady)
 
   
   interface BtnType
@@ -208,37 +224,9 @@ const Main: React.FC = () => {
   
   const EnterRoom = ({setRoomChoiceStage,  roomUserCnt}:any) =>{
 
-   
-
       const joinRoom = ({roomNum}:any) => {
- 
-        // getRoomUserCnt();
-        // getRoomUserCnt();
         console.log('roomNum 시시작', roomNum)
-         getEnterRoomUserCnt(roomNum)
-        // console.log('user user', roomUserCnt);
-        
-        // socket.emit('userCnt', { room: roomNum, joinCnt });
-        
-        // const isUserCntFull = roomUserCnt.some(
-        //   (user: any) => user['room_no'] === roomNum && user['user_cnt'] === '2'
-        // );
-      
-        // if (isUserCntFull) {
-        //   alert('인원이 모두 입장했으므로 입장 하실 수 없습니다.');
-        //   return;
-        // }
-        // if( userCntCheck['1'] === 1 && stage !== '1' ){
-        //   console.log('하늘하늘ㄴ')
-        //   // socket.emit('userCnt', { room: roomNum, userCnt: removeUserCnt });
-        //   // console.log('!!!!@@@@')
-        //   // navigate(-1);
-        //   // setRoomChoiceStage(false)
-        //   return
-        // }
-
-
-
+        getEnterRoomUserCnt(roomNum)
       }
 
 
@@ -258,8 +246,8 @@ const Main: React.FC = () => {
         </div>
         <div  className="project-block">
         {
-        roomUserCnt.map((user:any) => (
-        <div className={`project-block_user-cnt${user['room_no']}`}>
+        roomUserCnt.map((user:any, num:string) => (
+        <div key={'userCnt'+num} className={`project-block_user-cnt${user['room_no']}`}>
           {user['user_cnt']}명 입장
         </div>
         ))
@@ -309,7 +297,8 @@ const Main: React.FC = () => {
     let joinCnt = -1;
     const roomUserCntUpdate = {'room_no' : roomId, 'user_cnt' : joinCnt}
     joinRoomApi(roomUserCntUpdate);
-    navigate(-1);
+    sessionStorage.removeItem('roomId')
+    navigate('/');
     setRoomChoiceStage(false)
   }
 
@@ -331,38 +320,38 @@ const Main: React.FC = () => {
         </div>
         <div className="project_content">
           <div>
-            { roomChoiceStage === false && stage !== '1' &&
+            { roomChoiceStage === false && stage !== '1' && 
             <EnterRoom setRoomChoiceStage={setRoomChoiceStage} roomUserCnt={roomUserCnt} />
             }
-            {resultName === false && stage === '1'&& 
-             <>
+            {resultName === false && stage === '1'&& roomId !== 'null' &&
+            <>
+              <div>
+                <input 
+                  type="text" 
+                  placeholder="팀명을 입력하세요." 
+                  className="project_content_title"   
+                  onChange={(e) => setTeamName(e.target.value)} 
+                  onKeyPress={(e) => {
+                    if (e.key === "Enter") {
+                      registerTeam();
+                    }
+                  }}
+                />
+                <button onClick={()=>registerTeam()} className="project_content_btn">
+                  등록
+                </button>
+                {rivalTeamName.length === 0 &&
+                <p>
+                  팀명을 입력해주세요
+                </p>
+                }
                 <div>
-                  <input 
-                    type="text" 
-                    placeholder="팀명을 입력하세요." 
-                    className="project_content_title"   
-                    onChange={(e) => setTeamName(e.target.value)} 
-                    onKeyPress={(e) => {
-                      if (e.key === "Enter") {
-                        registerTeam();
-                      }
-                    }}
-                  />
-                  <button onClick={()=>registerTeam()} className="project_content_btn">
-                    등록
+                  <button onClick={()=>moveBack()} className="project_back_btn">
+                    뒤로 가기
                   </button>
-                  {rivalTeamName.length === 0 &&
-                  <p>
-                    팀명을 입력해주세요
-                  </p>
-                  }
-                  <div>
-                    <button onClick={()=>moveBack()} className="project_back_btn">
-                      뒤로 가기
-                    </button>
-                  </div>
-                </div> 
-              </>
+                </div>
+              </div> 
+            </>
             }
           </div>
         </div>
