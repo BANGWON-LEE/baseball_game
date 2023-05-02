@@ -36,29 +36,6 @@ const Main: React.FC = () => {
 
   }
 
-  const setUrlRoomDefend =async(roomNum:any) => {
-    // url을 입력해서 방에 들어가려고 함을 방지함
-
-    const roomUserCntApi = await checkRoomUserCntApi();
-    console.log('getEnter roomUserCntApi 시작',roomUserCntApi);
-  
-
-    const isUserCntFull = roomUserCntApi.some(
-      (user: any) => user['room_no'] === roomNum && user['user_cnt'] === '2',
-  
-    );
-  
-    console.log('getEnter isUserCntFull defend 시작',isUserCntFull);
-
-
-
-    if (roomChoiceStage === false && isUserCntFull) {
-      alert('로비를 통해서 방에 접속해주세요.');
-      navigate(-1)
-      return;
-    }
-  }
-
   const getEnterRoomUserCnt =async(roomNum:any) => {
     // 방에 입장 시도 할 때 실행되는 함수
     let joinCnt = 1;
@@ -75,6 +52,7 @@ const Main: React.FC = () => {
   
     if (isUserCntFull) {
       alert('인원이 모두 입장했으므로 입장 하실 수 없습니다.');
+      getRoomUserCnt()
       navigate('/')
       return;
     }
@@ -106,43 +84,46 @@ const Main: React.FC = () => {
     };
   },[navigate]);
 
-
-  useEffect(() => {
+  // url로 접속 시에 알림을 한 번만 띄우도록 하기 위한 변수
+  let renderCnt = 1;
+  useEffect(()  => {
+    
     // 방에 접속한 인원수 체크를 위함
-    console.log('첫 룸 아이디', roomId)
-    console.log('첫 룸 아이디', typeof(roomId))
     if(roomId !== 'null' && roomId !== null){
-      setUrlRoomDefend(roomId)
+
+      if (roomChoiceStage === false && renderCnt === 1  ) {
+        renderCnt+=1
+        console.log('유즈이펙트 횟수',   renderCnt);
+        alert('로비를 통해서 방에 접속해주세요.');
+        navigate('/')
+      }
     }else{
       navigate('/')
     }
 
     getRoomUserCnt()
-    
-    console.log('유즈이펙트 횟수');
-    socket.emit('joinRoom', roomId);
+
+    // socket.emit('joinRoom', roomId);
     // window.addEventListener("unload", handleDisconnect);
 
   
     // socket.on('disconnect',);
   
-    const handleVisitorCount = (data: any) => {
-      console.log('방방ㅂ아')
-      if (data.visitorCount === 2) {
-        alert('방에 참여 인원이 모두 찼습니다.');
-        return
-      }
-    };
-    socket.on('visitorCount', handleVisitorCount);
+    // const handleVisitorCount = (data: any) => {
+    //   console.log('방방ㅂ아')
+    //   if (data.visitorCount === 2) {
+    //     alert('방에 참여 인원이 모두 찼습니다.');
+    //     return
+    //   }
+    // };
+    // socket.on('visitorCount', handleVisitorCount);
   
- 
-  
-    return () => {
-      // socket.off('disconnect', handleDisconnect);
-      socket.off('visitorCount', handleVisitorCount);
+    // return () => {
+    //   // socket.off('disconnect', handleDisconnect);
+    //   socket.off('visitorCount', handleVisitorCount);
 
-    };
-  },[roomId, socket,  removeUserCnt])
+    // };
+  },[roomId,  removeUserCnt])
 
   console.log('roomUserCnt',roomUserCnt)
   
@@ -152,13 +133,13 @@ const Main: React.FC = () => {
   const registerTeam = () : void => {
     socket.emit('teamName', { room: roomId, teamName });
 
-          joinStep += 1;
-          console.log('더한 스텝', joinStep)
-          socket.emit('joinStep', { room: roomId, joinStep });
+      joinStep += 1;
+      console.log('더한 스텝', joinStep)
+      socket.emit('joinStep', { room: roomId, joinStep });
 
-          setResultName(true);
-          setRivalNameCheck(true);
-        }
+      setResultName(true);
+      setRivalNameCheck(true);
+    }
 
         
   const changeTeamName = () : void => {
