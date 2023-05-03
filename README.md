@@ -7,16 +7,26 @@
 <br/>
 
 <p>게임방 선택하는 로비</p>       
-![스크린샷 2023-05-03 101226](https://user-images.githubusercontent.com/74960408/235825689-5d473fe6-4342-443a-8be3-c320587c04ad.png)
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/74960408/235825689-5d473fe6-4342-443a-8be3-c320587c04ad.png">
+</p>
 <br/>
 <p>팀 이름 설정</p>
-![스크린샷 2023-05-03 101417](https://user-images.githubusercontent.com/74960408/235825694-ff3632cb-6134-4a2c-973a-109321b36b0c.png)
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/74960408/235825694-ff3632cb-6134-4a2c-973a-109321b36b0c.png">
+</p>
 <br/>
 <p>게임 플레이 화면</p>
-![스크린샷 2023-05-03 115358](https://user-images.githubusercontent.com/74960408/235825697-43651364-1796-4a31-aac4-67dcf91f6e30.png)
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/74960408/235825697-43651364-1796-4a31-aac4-67dcf91f6e30.png">
+</p>
 <br/>
 <p>자신의 숫자 정하기</p>
-![스크린샷 2023-05-03 115434](https://user-images.githubusercontent.com/74960408/235825700-16fa0712-e172-4da2-ad58-376c0d962759.png)
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/74960408/235825700-16fa0712-e172-4da2-ad58-376c0d962759.png">
+</p>
 <br/>
 <p>게임 상황 (ex. 상대방 숫자 하나를 맞추어 안타가 됨)</p>
-![스크린샷 2023-05-03 115756](https://user-images.githubusercontent.com/74960408/235825702-6fe50487-6a5c-460b-b771-4551dd97eea4.png)
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/74960408/235825702-6fe50487-6a5c-460b-b771-4551dd97eea4.png">
+</p>
