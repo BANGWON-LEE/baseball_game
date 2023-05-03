@@ -8,25 +8,25 @@
 
 <p>게임방 선택하는 로비</p>       
 <p align="center" >
-  <img src="https://user-images.githubusercontent.com/74960408/235825689-5d473fe6-4342-443a-8be3-c320587c04ad.png" width="200" height="400">
+  <img src="https://user-images.githubusercontent.com/74960408/235825689-5d473fe6-4342-443a-8be3-c320587c04ad.png" width="700" height="600">
 </p>
 <br/>
 <p>팀 이름 설정</p>
 <p align="center">
-  <img src="https://user-images.githubusercontent.com/74960408/235825694-ff3632cb-6134-4a2c-973a-109321b36b0c.png" width="200" height="400">
+  <img src="https://user-images.githubusercontent.com/74960408/235825694-ff3632cb-6134-4a2c-973a-109321b36b0c.png" width="700" height="600">
 </p>
 <br/>
 <p>게임 플레이 화면</p>
 <p align="center">
-  <img src="https://user-images.githubusercontent.com/74960408/235825697-43651364-1796-4a31-aac4-67dcf91f6e30.png" width="200" height="400">
+  <img src="https://user-images.githubusercontent.com/74960408/235825697-43651364-1796-4a31-aac4-67dcf91f6e30.png" width="700" height="600">
 </p>
 <br/>
 <p>자신의 숫자 정하기</p>
 <p align="center">
-  <img src="https://user-images.githubusercontent.com/74960408/235825700-16fa0712-e172-4da2-ad58-376c0d962759.png" width="200" height="400">
+  <img src="https://user-images.githubusercontent.com/74960408/235825700-16fa0712-e172-4da2-ad58-376c0d962759.png" width="700" height="600">
 </p>
 <br/>
 <p>게임 상황 (ex. 상대방 숫자 하나를 맞추어 안타가 됨)</p>
 <p align="center">
-  <img src="https://user-images.githubusercontent.com/74960408/235825702-6fe50487-6a5c-460b-b771-4551dd97eea4.png" width="200" height="400">
+  <img src="https://user-images.githubusercontent.com/74960408/235825702-6fe50487-6a5c-460b-b771-4551dd97eea4.png" width="700" height="600">
 </p>
