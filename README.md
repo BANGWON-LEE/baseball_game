@@ -7,7 +7,7 @@
 <br/>
 
 <p>게임방 선택하는 로비</p>       
-<p align="center">
+<p align="center" >
   <img src="https://user-images.githubusercontent.com/74960408/235825689-5d473fe6-4342-443a-8be3-c320587c04ad.png">
 </p>
 <br/>
