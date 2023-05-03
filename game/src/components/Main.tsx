@@ -141,30 +141,41 @@ const Main: React.FC = () => {
     }
 
         
-  const changeTeamName = () : void => {
-    setResultName(false);
-    setTeamName('')
-  }
+  // const changeTeamName = () : void => {
+  //   // 팀 이름을 수정할 때마다, 작동하는 코드. 이 코드를 작성하지 않으면 팀이름을 변경할 때마다 방문자 수가 늘어난다.
+  //   // const newRivalTeamArray = rivalTeamName.slice(0, rivalTeamName.length - 1);
+  //   // setRivalTeamName(newRivalTeamArray)
+
+  //   setRivalTeamName(prevArray => {
+  //     const newRivalTeamArray = Array.from(prevArray); 
+  //     newRivalTeamArray.splice(newRivalTeamArray.length - 1, 1);
+  //     return newRivalTeamArray;
+  //   });
+  //   setResultName(false);
+  //   setTeamName('')
+  // }
 
   
   const [rivalTeamName, setRivalTeamName] = useState<string[]>([]);
   const [userReady, setUserReady]= useState<string>('false');  
+
   useEffect(() =>  {
-    console.log('socket main', socket)
 
     socket.on('joinReady', (data) => {
       console.log('접속준비', data)
       setUserReady(data.joinReady)
-
   });
+
+  // 팀이름 변경을 위한 함수
+  const handleResponseTeamName = (data: any) => {
+    setRivalTeamName((prevRivalTeamName) => [...prevRivalTeamName, data.teamName]);
+  };
 
 
     // socket.emit('add user', nickname);
     if(rivalNameCheck=== true && teamName){
     // const checkSocket = () =>{
-    socket.on('responseTeamName', (data) => {
-      setRivalTeamName((rivalTeamName) => [...rivalTeamName, data.teamName])
-    });
+      socket.on('responseTeamName', handleResponseTeamName);
 
     socket.on('joinStep', (data) => {
       console.log('조인스텝', typeof(data.joinStep))
@@ -178,6 +189,13 @@ const Main: React.FC = () => {
     }
 
   setRivalNameCheck(false);
+
+  return () => {
+    // 팀이름 변경시 배열의 길이를 줄이고, 다시 늘릴 때, 값이 누적되지 않기 위한 관리 코드
+    if(teamName === rivalTeamName[1] && rivalTeamName.length > 2){
+    socket.off('responseTeamName', handleResponseTeamName);
+    }
+  };
 
   },[teamName, rivalNameCheck]);
 
@@ -263,13 +281,13 @@ const Main: React.FC = () => {
             게임시작
           </button>
         </Link>
-      : userReady === 'true' && rivalTeamName.length >= 2 && resultJoinStep === 1 ?
+      : userReady === 'true' && rivalTeamName.length >= 2 && resultJoinStep === 1 &&
       <Link to={`/game?no=${roomId}&team=${teamName}&id=1.5`}>
           <button className="btn_game_start">
             게임시작
           </button>
         </Link>
-      : rivalTeamName.length === 1 &&  <p>상대팀을 기다려주세요</p> }
+       }
     </>
     )
   }
@@ -277,13 +295,14 @@ const Main: React.FC = () => {
   const moveBack = () => {
     // socket.emit('userCnt', { room: roomId, userCnt: removeUserCnt });
     let joinCnt = -1;
+
     const roomUserCntUpdate = {'room_no' : roomId, 'user_cnt' : joinCnt}
     joinRoomApi(roomUserCntUpdate);
     sessionStorage.removeItem('roomId')
     navigate('/');
     setRoomChoiceStage(false)
   }
-
+  console.log('지금 접속자 수', rivalTeamName)
   return(
     <div className="main_back">
       <div className="main_block">
@@ -292,11 +311,11 @@ const Main: React.FC = () => {
           {resultName === true &&
           <>
             <h5>{teamName}</h5>
-            <div className="project_title_change">
-              <button onClick={changeTeamName} className="project_title_change_team_name">
+            {/* <div className="project_title_change">
+              <button onClick={()=>changeTeamName()} className="project_title_change_team_name">
                 팀명 변경하기
               </button>
-            </div>
+            </div> */}
           </>
           }
         </div>
@@ -326,6 +345,9 @@ const Main: React.FC = () => {
                 <p>
                   팀명을 입력해주세요
                 </p>
+                }
+                {
+                rivalTeamName.length === 1 &&  <p>상대팀을 기다려주세요</p>
                 }
                 <div>
                   <button onClick={()=>moveBack()} className="project_back_btn">
