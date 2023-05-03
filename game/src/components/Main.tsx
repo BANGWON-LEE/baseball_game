@@ -47,7 +47,6 @@ const Main: React.FC = () => {
 
     const isUserCntFull = roomUserCntApi.some(
       (user: any) => user['room_no'] === roomNum && user['user_cnt'] === '2',
-  
     );
   
     if (isUserCntFull) {
@@ -103,7 +102,7 @@ const Main: React.FC = () => {
 
     getRoomUserCnt()
 
-    // socket.emit('joinRoom', roomId);
+    socket.emit('joinRoom', roomId);
     // window.addEventListener("unload", handleDisconnect);
 
   
@@ -253,6 +252,8 @@ const Main: React.FC = () => {
 
 
   const GameStart = ({userReady, rivalTeamName, roomId, teamName}: GameBtnType) =>{
+
+    console.log('게임스타트', userReady)
 
     return(
       <>
