@@ -1,14 +1,54 @@
-import React, { createContext, useEffect, useLayoutEffect, useState } from "react";
+import React, { createContext, useEffect,  useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import '../styles/component.scss'
 import closeBtn from "../asset/png/close_btn.png"
 // import { parse } from "node:path/win32";
 
 import io from "socket.io-client";
+import GroundBase from "./ground/GroundBase";
+import TopBar from "./ground/TopBar";
 // import { SOCKET_URL } from "config";
 
 const socket = io('http://localhost:5000');
 export const SocketContext = createContext;
+
+interface BtnType
+{
+    num : Line[];
+}
+
+interface Line
+{
+    no1: string;
+    no2: string;
+    no3: string;
+};
+
+
+const numObject: BtnType = {
+num:[
+    {
+        no1:'1',
+        no2:'2',
+        no3:'3'
+    },
+    {
+        no1:'4',
+        no2:'5',
+        no3:'6'
+    },
+    {
+        no1:'7',
+        no2:'8',
+        no3:'9'
+    },
+    {
+        no1:'',
+        no2:'0',
+        no3:''
+    },
+],
+};
 
 
 const Ground: React.FC = () => {
@@ -288,8 +328,7 @@ const Ground: React.FC = () => {
         let totalStrikeCnt = 0;
         let ballCount : number  = 0;
         let resultBallCnt : number = 0;
-        // console.log('rivalAttackNum use1', rivalAttackNum)        
-        // console.log('rivalAttackNum use2', checkRivalScore['1.5']?.[0]?.[0] )
+
         setMatchHitCnt(0);
         setMatchStrikeCnt(0);
         setMatchBallCnt(0);
@@ -326,11 +365,6 @@ const Ground: React.FC = () => {
                 totalStrikeCnt = strikeCnt - ballCount;
                 setMatchStrikeCnt(totalStrikeCnt);
             }
-
-            
-
-        // }
-        console.log('히트1', matchHitCnt);
         })
 
 
@@ -364,15 +398,7 @@ const Ground: React.FC = () => {
             <p className="total_back_situation">{matchHitCnt > 0 ? matchHitCnt + "안타" : matchStrikeCnt > 0 ?  matchStrikeCnt + "스트라이크 " : null}{matchHitCnt === 0 && matchBallCnt > 0 &&  matchBallCnt + "볼"}</p>
                 <div className="ground_back">
                     <div className="ground_back_position">
-                        <div className="ground_back_position_top-base"/>
-                        <div className="player_located_first_base"/>
-                        <div className="ground_back_position_right-base"/>
-                        <div className="player_located_right_base"/>
-                        <div className="ground_back_position_left-base"/>
-                        <div className="player_located_left_base"/>
-                        <div className="ground_back_position_home-base"/>
-                        <div className="player_located_last_base home_color"/>
-                        <div className="ground_back_position_pitcher-base"/>
+                        <GroundBase />
                         {gameStatus === 1 && 
                         rivalTeamName !== undefined &&
                             <button className="game_start" onClick={gameStart}>게임시작</button>
@@ -422,71 +448,10 @@ const Ground: React.FC = () => {
 
 export default Ground;
 
-const TopBar = ({teamName, homeTeamScore, awayTeamScore, gameRound, rivalTeamName}: any)  => { 
 
-
-
-    return(
-        <div className="game_board">
-            <div className="game_board_game_round">
-                <p className="game_board_game_round_text">
-                    {Math.floor(gameRound)}회 {gameRound - 0.5 < Math.floor(gameRound) ? " 초" : " 말"}
-                </p>
-            </div>
-            <div className="game_board_detail">
-                <div className="game_board_detail_home">
-                    <span className="game_board_detail_team home-team">{teamName}</span>
-                    <span className="game_board_detail_score home-team">{homeTeamScore}</span>
-                </div>
-                <span className="game_board_detail_vs">VS</span>
-                <div className="game_board_detail_away">
-                    <span className="game_board_detail_score away-team">{awayTeamScore}</span>
-                    <span className="game_board_detail_team away-team">{rivalTeamName}</span>
-                </div>
-            </div>
-        </div>
-    )
-}
 
 const ChoiceOutNumberPad = ({deleteNum, cntText, setCntText, selectNum, myNumArray}: any )  => {
     
-    interface BtnType
-        {
-            num : Line[];
-        }
-
-    interface Line
-        {
-            no1: string;
-            no2: string;
-            no3: string;
-        };
-
-
-    const numObject: BtnType = {
-        num:[
-            {
-                no1:'1',
-                no2:'2',
-                no3:'3'
-            },
-            {
-                no1:'4',
-                no2:'5',
-                no3:'6'
-            },
-            {
-                no1:'7',
-                no2:'8',
-                no3:'9'
-            },
-            {
-                no1:'',
-                no2:'0',
-                no3:''
-            },
-        ],
-    };
     
     return(
         <>
@@ -523,44 +488,7 @@ const ChoiceOutNumberPad = ({deleteNum, cntText, setCntText, selectNum, myNumArr
 }
 
 const ChoiceAttackNumberPad = ({deleteNum, cntText, setCntText, selectNum, myNumArray}: any )  => {
-    
-    interface BtnType
-        {
-            num : Line[];
-        }
 
-    interface Line
-        {
-            no1: string;
-            no2: string;
-            no3: string;
-        };
-
-
-    const numObject: BtnType = {
-        num:[
-            {
-                no1:'1',
-                no2:'2',
-                no3:'3'
-            },
-            {
-                no1:'4',
-                no2:'5',
-                no3:'6'
-            },
-            {
-                no1:'7',
-                no2:'8',
-                no3:'9'
-            },
-            {
-                no1:'',
-                no2:'0',
-                no3:''
-            },
-        ],
-    };
     
     return(
         <>
