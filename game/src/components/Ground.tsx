@@ -1,15 +1,13 @@
 import React, { createContext, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import "../styles/component.scss";
-import closeBtn from "../asset/png/close_btn.png";
-// import { parse } from "node:path/win32";
 
 import io from "socket.io-client";
 import GroundBase from "./ground/GroundBase";
 import TopBar from "./ground/TopBar";
 import GameProceed from "./ground/GameProceed";
-import ChoiceAttackNumberPad from "./ground/ChoiceAttackNumberPad";
-// import { SOCKET_URL } from "config";
+import ChoiceNumberPad from "./ground/ChoiceNumberPad";
+import MyOutNumOrAttackNum from "./ground/MyOutOrAttackNum";
 
 const socket = io("http://localhost:5000");
 export const SocketContext = createContext;
@@ -64,12 +62,7 @@ const Ground: React.FC = () => {
   const [gameRound, setGameRound] = useState<number>(1);
   const [rivalTeamName, setRivalTeamName] = useState<string>("");
   const [rivalAttackNum, setRivalAttackNum] = useState<string[]>([]);
-
-  
-
   const [myNumArray, setMyNumArray] = useState<string[]>([]); // 숫자 배열
-  const [totalSituation, setTotalSituation] = useState<string>("");
-  const [matchResultMessage, setMatchResultMessage] = useState<string>("");
   interface Score {
     [key: string]: any;
   }
@@ -346,16 +339,17 @@ const Ground: React.FC = () => {
                     </>
                   ) : null}
                   {gameStatus === 2 && myNumArray.length !== 3 ? (
-                    <ChoiceOutNumberPad
+                    <ChoiceNumberPad
                       deleteNum={deleteNum}
                       cntText={cntText}
                       setCntText={setCntText}
                       selectNum={selectNum}
                       myNumArray={myNumArray}
-                    />
+                      numObject={numObject.num}
+                      />
                   ) : null}
                   {gameStatus === 3 && teamReady[1] !== undefined ? (
-                    <ChoiceAttackNumberPad
+                    <ChoiceNumberPad
                       deleteNum={deleteNum}
                       cntText={cntText}
                       setCntText={setCntText}
@@ -429,88 +423,3 @@ const Ground: React.FC = () => {
 };
 
 export default Ground;
-
-const ChoiceOutNumberPad = ({
-  deleteNum,
-  cntText,
-  setCntText,
-  selectNum,
-  myNumArray,
-}: any) => {
-  return (
-    <>
-      <div className="game_pad_text">
-        <input
-          type="text"
-          onChange={(e) => setCntText(e.target.value)}
-          defaultValue={cntText}
-          className="game_pad_text_insert"
-          id="input_first"
-          readOnly
-          placeholder="0"
-          onKeyPress={(e) => {
-            // if (e.key === 'Backspace') {
-            //     // registerTeam();
-            // }
-          }}
-        />
-        <div className="game_pad_text_block">
-          <button
-            className="game_pad_text_block_btn"
-            onClick={() => deleteNum()}
-          >
-            <img
-              src={closeBtn}
-              alt={"close"}
-              className="game_pad_text_block_btn_icon"
-            />
-          </button>
-        </div>
-      </div>
-      {numObject.num.map((data, index) => (
-        <div className="game_pad_num_line" key={"btn_key" + index}>
-          {data.no1 !== "" && (
-            <button
-              className="btn_num"
-              onClick={selectNum}
-              value={`${data.no1}`}
-              disabled={myNumArray.length === 3 ? true : false}
-            >
-              {data.no1}
-            </button>
-          )}
-          <button
-            className="btn_num"
-            onClick={selectNum}
-            value={`${data.no2}`}
-            disabled={myNumArray.length === 3 ? true : false}
-          >
-            {data.no2}
-          </button>
-          {data.no3 !== "" && (
-            <button
-              className="btn_num"
-              onClick={selectNum}
-              value={`${data.no3}`}
-              disabled={myNumArray.length === 3 ? true : false}
-            >
-              {data.no3}
-            </button>
-          )}
-        </div>
-      ))}
-    </>
-  );
-};
-
-
-
-const MyOutNumOrAttackNum = ({ myNumArray }: any) => {
-  return (
-    <div className="game_pad_second_inner">
-      <div className="game_pad_second_inner_text">{myNumArray[0]}</div>
-      <div className="game_pad_second_inner_text">{myNumArray[1]}</div>
-      <div className="game_pad_second_inner_text">{myNumArray[2]}</div>
-    </div>
-  );
-};
