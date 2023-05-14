@@ -1,6 +1,6 @@
 import closeBtn from "../../asset/png/close_btn.png";
 
-type ChoiceAttackNumberType = {
+type ChoiceNumberType = {
    deleteNum : () => void;
    cntText : string;
    setCntText : (newState : string) => void;
@@ -9,14 +9,14 @@ type ChoiceAttackNumberType = {
    numObject : any;
 }
 
-const ChoiceAttackNumberPad = ({
+const ChoiceNumberPad = ({
   deleteNum,
   cntText,
   setCntText,
   selectNum,
   myNumArray,
   numObject
-}: ChoiceAttackNumberType) => {
+}: ChoiceNumberType) => {
   return (
     <>
       <div className="game_pad_second_text">
@@ -84,4 +84,4 @@ const ChoiceAttackNumberPad = ({
   );
 };
 
-export default ChoiceAttackNumberPad;
+export default ChoiceNumberPad;
