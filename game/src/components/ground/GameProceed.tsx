@@ -70,7 +70,7 @@ const GameProceed = (props : GameProceedType) => {
    //  console.log("cntText", cntText);
    console.log('체크체크', props.myNumArray)
 
-    if (parseInt(props.cntText) > 0 && parseInt(props.cntText) <= 15 && props.cntText !== "") {
+    if (parseInt(props.cntText) > 0 && parseInt(props.cntText) <= 15 && props.cntText !== "" && props.cntText[0] !== "0") {
       if (
         props.myNumArray.length === 0 ||
         props.myNumArray.length === 1 ||
