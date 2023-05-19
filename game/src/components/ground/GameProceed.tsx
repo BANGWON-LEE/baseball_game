@@ -80,7 +80,7 @@ const GameProceed = (props : GameProceedType) => {
         props.setCntText("");
       }
     } else {
-      alert("숫자 1 이상의 15 이하의 번호를 입력해주세요");
+      alert("숫자는 1이상 15이하의 숫자만 입력이 가능하며, 일의 자리 숫자는 0부터 시작할 수 없습니다.");
       props.setCntText("");
       return;
     }
