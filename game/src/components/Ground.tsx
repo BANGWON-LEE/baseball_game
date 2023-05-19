@@ -128,22 +128,6 @@ const Ground: React.FC = () => {
       // setCheckRivalScore(data)
       setCheckRivalScore({ ...checkRivalScore, [key]: value });
     });
-    // }
-
-    // checkSocket();
-
-    // socket.on('user joined', (data) =>{
-    //   setchats(chats.concat(`${data.username} joined`));
-    // })
-    // socket.on('user left', (data) => {
-    //   setchats(chats.concat(`${data.username} left`));
-    // });
-    // socket.on('disconnect', () => {
-    //   setIsConnected(false);
-    // });
-    // socket.on('new message', (data) => {
-    //   setchats(chats.concat(`${data.username} : ${data.message}`));
-    // });
   });
 
   //   console.log('checkRivalScore', checkRivalScore[gameRound - Math.floor(gameRound) === 0 ? '1.5':'1'])
