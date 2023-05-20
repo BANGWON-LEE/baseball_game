@@ -1,18 +1,25 @@
+import { useRecoilState } from "recoil";
+import { gameRoundGlobal } from "../../recoil/atoms";
+
 type TopBarProps = {
    teamName: string | null;
    homeTeamScore: number;
    awayTeamScore: number;
-   gameRound: number;
+   // gameRound: number;
    rivalTeamName: string | null;
 };
 
 const TopBar = (props: TopBarProps) => {
-return (
+
+   const [gameRound, setGameRound] = useRecoilState<number | null>(gameRoundGlobal);
+
+
+   return (
    <div className="game_board">
       <div className="game_board_game_round">
       <p className="game_board_game_round_text">
-         {Math.floor(props.gameRound)}회{" "}
-         {props.gameRound - 0.5 < Math.floor(props.gameRound) ? " 초" : " 말"}
+         {Math.floor(gameRound!)}회{" "}
+         {gameRound! - 0.5 < Math.floor(gameRound!) ? " 초" : " 말"}
       </p>
       </div>
       <div className="game_board_detail">

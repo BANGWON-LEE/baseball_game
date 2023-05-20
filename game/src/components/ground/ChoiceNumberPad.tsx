@@ -1,22 +1,24 @@
+import { useRecoilState } from "recoil";
 import closeBtn from "../../asset/png/close_btn.png";
+import { cntTextGlobal, myNumArrayGlobal } from "../../recoil/atoms";
 
 type ChoiceNumberType = {
    deleteNum : () => void;
-   cntText : string;
-   setCntText : (newState : string) => void;
    selectNum :(event: React.MouseEvent<HTMLButtonElement>) => void;
-   myNumArray: string[];
+
    numObject : any;
 }
 
 const ChoiceNumberPad = ({
   deleteNum,
-  cntText,
-  setCntText,
   selectNum,
-  myNumArray,
   numObject
 }: ChoiceNumberType) => {
+
+  const [myNumArray, setMyNumArray] = useRecoilState<string[] | null>(myNumArrayGlobal); // 숫자 배열
+  const [cntText, setCntText] = useRecoilState<string>(cntTextGlobal);
+
+
   return (
     <>
       <div className="game_pad_second_text">
@@ -55,7 +57,7 @@ const ChoiceNumberPad = ({
               className="btn_num"
              onClick={selectNum}
               value={`${data.no1}`}
-              disabled={myNumArray.length === 3 ? true : false}
+              disabled={myNumArray?.length === 3 ? true : false}
             >
               {data.no1}
             </button>
@@ -64,7 +66,7 @@ const ChoiceNumberPad = ({
             className="btn_num"
             onClick={selectNum}
             value={`${data.no2}`}
-            disabled={myNumArray.length === 3 ? true : false}
+            disabled={myNumArray?.length === 3 ? true : false}
           >
             {data.no2}
           </button>
@@ -73,7 +75,7 @@ const ChoiceNumberPad = ({
               className="btn_num"
               onClick={selectNum}
               value={`${data.no3}`}
-              disabled={myNumArray.length === 3 ? true : false}
+              disabled={myNumArray?.length === 3 ? true : false}
             >
               {data.no3}
             </button>

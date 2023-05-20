@@ -8,6 +8,8 @@ import TopBar from "./ground/TopBar";
 import GameProceed from "./ground/GameProceed";
 import ChoiceNumberPad from "./ground/ChoiceNumberPad";
 import MyOutNumOrAttackNum from "./ground/MyOutOrAttackNum";
+import {  cntTextGlobal, determineMyAttackGlobal, determineMyOutGlobal, gameRoundGlobal, gameSetCntGlobal, gameStatusGlobal, matchBallCntGlobal, matchHitCntGlobal, matchStrikeCntGlobal, myNumArrayGlobal, myTeamOriginId, roomUserCntState } from "../recoil/atoms";
+import { useRecoilState } from "recoil";
 
 const socket = io("http://localhost:5000");
 export const SocketContext = createContext;
@@ -51,18 +53,18 @@ const Ground: React.FC = () => {
   const [searchParams] = useSearchParams();
   const teamName = searchParams.get("team");
   // console.log('팀이름', teamName)
-  const teamOriginId: any = searchParams.get("id");
+  
   const roomId: any = searchParams.get("no");
   const [teamReady, setTeamReady] = useState<string[]>([]);
   // const [teamTurn, setTeamTurn] = useState<number>(0);
-  const [gameStatus, setGameStatus] = useState<number>(1);
-  const [cntText, setCntText] = useState<string>("");
+  const [gameStatus, setGameStatus] = useRecoilState<number | null>(gameStatusGlobal);
+  const [cntText, setCntText] = useRecoilState<string>(cntTextGlobal);
   const [homeTeamScore, setHomeTeamScore] = useState<number>(0);
   const [awayTeamScore, setAwayTeamScore] = useState<number>(0);
-  const [gameRound, setGameRound] = useState<number>(1);
+  const [gameRound, setGameRound] = useRecoilState<number|null>(gameRoundGlobal);
   const [rivalTeamName, setRivalTeamName] = useState<string>("");
   const [rivalAttackNum, setRivalAttackNum] = useState<string[]>([]);
-  const [myNumArray, setMyNumArray] = useState<string[]>([]); // 숫자 배열
+  const [myNumArray, setMyNumArray] = useRecoilState<string[] | null>(myNumArrayGlobal); // 숫자 배열
   interface Score {
     [key: string]: any;
   }
@@ -135,16 +137,16 @@ const Ground: React.FC = () => {
   const gameStart = (): void => {
     if (gameStatus === 2) {
       if (
-        myNumArray[0] === "" ||
-        myNumArray[1] === "" ||
-        myNumArray[2] === "" ||
+        myNumArray?.[0] === "" ||
+        myNumArray?.[1] === "" ||
+        myNumArray?.[2] === "" ||
         (cntText <= "0" && cntText > "15")
       ) {
         alert("알맞은 숫자를 입력해주세요");
         return;
       }
     }
-    setGameStatus(gameStatus + 1);
+    setGameStatus(gameStatus! + 1);
   };
 
   const selectNum = (event: any): void => {
@@ -155,23 +157,27 @@ const Ground: React.FC = () => {
 
   const deleteNum = (): void => {
     setCntText("");
-    if (myNumArray.length === 1 && myNumArray[0] === cntText) {
+    if (myNumArray?.length === 1 && myNumArray[0] === cntText) {
       myNumArray.pop();
     }
   };
 
-  const [determineMyOutNum, setDetermineMyOutNum] = useState<string[]>([]);
+  const [determineMyOutNum, setDetermineMyOutNum] = useRecoilState<string[]>(determineMyOutGlobal);
+  const [determineMyAttackNum, setDetermineMyAttackNum] = useRecoilState<string[]>(determineMyAttackGlobal)
 
-  const [determineMyAttackNum, setDetermineMyAttackNum] = useState<string[]>(
-    []
-  );
+  // const [determineMyAttackNum, setDetermineMyAttackNum] = useState<string[]>(
+  //   []
+  // );
 
   let myScore: Score = {};
+
+  const teamOriginId = useRecoilState<string | null>(myTeamOriginId)
 
   useEffect(() => {
     if (determineMyAttackNum) {
       socket.emit("Attack", { room: roomId, determineMyAttackNum });
     }
+     
     if (determineMyOutNum) {
       // 유저의 num(아웃 넘버)를 구부해주기 위한 작업
       // setCheckMyScore
@@ -179,15 +185,15 @@ const Ground: React.FC = () => {
       //     ...prevState,
       //     [teamOriginId]: determineMyOutNum,
       //   }));
-      myScore[teamOriginId] = determineMyOutNum;
+      myScore[Number(teamOriginId)] = determineMyOutNum;
       socket.emit("rivalOutNum", { room: roomId, myScore });
     }
   }, [determineMyAttackNum, determineMyOutNum]);
 
-  const [gameSetCnt, setGameSetCnt] = useState<number>(0);
-  const [matchHitCnt, setMatchHitCnt] = useState<number>(0);
-  const [matchBallCnt, setMatchBallCnt] = useState<number>(0);
-  const [matchStrikeCnt, setMatchStrikeCnt] = useState<number>(0);
+  const [gameSetCnt, setGameSetCnt] = useRecoilState<number>(gameSetCntGlobal);
+  const [matchHitCnt, setMatchHitCnt] = useRecoilState<number>(matchHitCntGlobal)
+  const [matchStrikeCnt, setMatchStrikeCnt] =useRecoilState<number>(matchStrikeCntGlobal)
+  const [matchBallCnt, setMatchBallCnt] =useRecoilState<number>(matchBallCntGlobal)
   const [attackAction, setAttackAction] = useState<boolean>(false);
 
   //20230324 내 공격 번호를 상대방의 번호와 비교하는 작업 필요, 내 공격번호와 내 번호를 비교하지 않게!!
@@ -203,16 +209,19 @@ const Ground: React.FC = () => {
     setMatchStrikeCnt(0);
     setMatchBallCnt(0);
 
+    // 한 회의 기회를 다 사용하면 공격 차례가 바뀐다.
     gameSetCnt === 3 && socket.emit("round", { room: roomId, gameRound });
+
     console.log("attackAction", attackAction);
     gameNumArray?.map((el) => {
       console.log("rival to 3", rivalAttackNum);
       console.log("rival to 2", determineMyAttackNum[el]);
 
+      const rivalScoreIndex = gameRound! - Math.floor(gameRound!) === 0 ? "1.5" : "1"
+        
+
       if (
-        checkRivalScore?.[
-          gameRound - Math.floor(gameRound) === 0 ? "1.5" : "1"
-        ]?.[0].indexOf(rivalAttackNum?.[el]) !== -1 &&
+        checkRivalScore?.[rivalScoreIndex]?.[0].indexOf(rivalAttackNum?.[el]) !== -1 &&
         rivalAttackNum?.indexOf(rivalAttackNum?.[el]) === el
       ) {
         ballCount += 1;
@@ -220,18 +229,13 @@ const Ground: React.FC = () => {
       }
 
       if (
-        rivalAttackNum?.[el] ===
-          checkRivalScore?.[
-            gameRound - Math.floor(gameRound) === 0 ? "1.5" : "1"
-          ]?.[0]?.[el] &&
+        rivalAttackNum?.[el] === checkRivalScore?.[rivalScoreIndex]?.[0]?.[el] &&
         rivalAttackNum?.[el] !== undefined
       ) {
         console.log("측정1", rivalAttackNum[el]);
         console.log(
           "측정2",
-          checkRivalScore?.[
-            gameRound - Math.floor(gameRound) === 0 ? "1.5" : "1"
-          ]?.[el]
+          checkRivalScore?.[rivalScoreIndex]?.[el]
         );
 
         checkHitCnt += 1;
@@ -244,9 +248,7 @@ const Ground: React.FC = () => {
 
       if (
         rivalAttackNum?.[el] !==
-          checkRivalScore?.[
-            gameRound - Math.floor(gameRound) === 0 ? "1.5" : "1"
-          ]?.[0]?.[el] &&
+          checkRivalScore?.[rivalScoreIndex]?.[0]?.[el] &&
         rivalAttackNum?.[el] !== undefined
       ) {
         strikeCnt += 1;
@@ -273,13 +275,17 @@ const Ground: React.FC = () => {
     // setMatchHitCnt(0);
   }, [rivalAttackNum, checkRivalScore, attackAction]);
 
+  console.log('my1',matchHitCnt )
+  console.log('my2',matchStrikeCnt )
+  console.log('my3',matchBallCnt )
+
   return (
     <div className="total_back">
       <TopBar
         teamName={teamName}
         homeTeamScore={homeTeamScore}
         awayTeamScore={awayTeamScore}
-        gameRound={gameRound}
+        // gameRound={gameRound}
         rivalTeamName={rivalTeamName}
       />
       <div className="total_back_inner">
@@ -302,7 +308,7 @@ const Ground: React.FC = () => {
             <div className="game_ground">
               <div
                 className={` ${
-                  (myNumArray.length !== 3 && gameStatus === 2) ||
+                  (myNumArray?.length !== 3 && gameStatus === 2) ||
                   (gameStatus === 3 && !determineMyOutNum)
                     ? "game_pad"
                     : "game_pad_second"
@@ -322,27 +328,21 @@ const Ground: React.FC = () => {
                       <MyOutNumOrAttackNum myNumArray={myNumArray} />
                     </>
                   ) : null}
-                  {gameStatus === 2 && myNumArray.length !== 3 ? (
+                  {gameStatus === 2 && myNumArray?.length !== 3 ? (
                     <ChoiceNumberPad
                       deleteNum={deleteNum}
-                      cntText={cntText}
-                      setCntText={setCntText}
                       selectNum={selectNum}
-                      myNumArray={myNumArray}
                       numObject={numObject.num}
                       />
                   ) : null}
                   {gameStatus === 3 && teamReady[1] !== undefined ? (
                     <ChoiceNumberPad
                       deleteNum={deleteNum}
-                      cntText={cntText}
-                      setCntText={setCntText}
                       selectNum={selectNum}
-                      myNumArray={myNumArray}
                       numObject={numObject.num}
                     />
                   ) : gameStatus === 3 &&
-                    myNumArray.length === 3 &&
+                    myNumArray?.length === 3 &&
                     teamReady[0] === undefined ? (
                     <h4>
                       상대방이 아웃카운트를 정하고 있습니다. 잠시만 기다려주세요
@@ -350,50 +350,10 @@ const Ground: React.FC = () => {
                   ) : null}
                   {gameStatus === 2 || gameStatus === 3 ? (
                     <GameProceed
-                      gameStatus={gameStatus}
-                      setGameStatus={(newState: number | null) => {
-                        if (newState !== null) {
-                          setGameStatus(newState);
-                        }
-                      }}
-                      setGameRound={(newState: number | null) => {
-                        if (newState !== null) {
-                          setGameRound(newState);
-                        }
-                      }}
                       determineMyOutNum={determineMyOutNum}
-                      setDetermineMyOutNum={setDetermineMyOutNum}
-                      setDetermineMyAttackNum={setDetermineMyAttackNum}
-                      cntText={cntText}
-                      setCntText={setCntText}
-                      setGameSetCnt = {setGameSetCnt}
-                      myNumArray={myNumArray}
-                      setMyNumArray={(newState: string[] | null) => {
-                        if (newState !== null) {
-                          setMyNumArray(newState);
-                        }
-                      }}
                       roomId={roomId}
                       teamReady={teamReady}
-                      teamOriginId={teamOriginId}
-                      gameSetCnt={gameSetCnt}
-                      setMatchHitCnt={(newState: number | null) => {
-                        if (newState !== null) {
-                          setMatchHitCnt(newState);
-                        }
-                      }}
-                      setMatchStrikeCnt={(newState: number | null) => {
-                        if (newState !== null) {
-                          setMatchStrikeCnt(newState);
-                        }
-                      }}
-                      setMatchBallCnt={(newState: number | null) => {
-                        if (newState !== null) {
-                          setMatchBallCnt(newState);
-                        }
-                      }}
                       rivalTeamName={rivalTeamName}
-                      gameRound={gameRound}
                     />
                   ) : null}
                 </div>
