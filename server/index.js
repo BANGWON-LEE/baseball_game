@@ -282,22 +282,22 @@ const timer = setTimeout(() => {
 socket.on('disconnect', () => {
   console.log('Client disconnected');
   disconnected = true;
-  // const rooms = socket.rooms; // 클라이언트가 속한 방 목록
-  // console.log('rooooom dis', rooms)
-  // for (let room in rooms) {
-  //   if (room !== socket.id) { // 클라이언트의 기본 room은 제외
-  //     console.log(`Client left room ${room}`);
-  //     if(totalJoinCnt[`${room}`] > 0){
-  //       console.log('뭐야', totalJoinCnt[`${room}`])
-  //         totalJoinCnt[`${room}`] -= 1
-  //     }
-  //     db.query(
-  //       //  values("adminUser", "1234","관리자", 0.0, 0.0, 0.0);
-  //       "UPDATE tb_room SET user_cnt = "+ totalJoinCnt[`${room}`]?.toString() +" WHERE room_id = " +room,(err,result) => {
-  //       console.log('data', result);  
-  //   });
-  //   }
-  // }
+  const rooms = socket.rooms; // 클라이언트가 속한 방 목록
+  console.log('rooooom dis', rooms)
+  for (let room in rooms) {
+    if (room !== socket.id) { // 클라이언트의 기본 room은 제외
+      console.log(`Client left room ${room}`);
+      if(totalJoinCnt[`${room}`] > 0){
+        console.log('뭐야', totalJoinCnt[`${room}`])
+          totalJoinCnt[`${room}`] -= 1
+      }
+      db.query(
+        //  values("adminUser", "1234","관리자", 0.0, 0.0, 0.0);
+        "UPDATE tb_room SET user_cnt = "+ totalJoinCnt[`${room}`]?.toString() +" WHERE room_id = " +room,(err,result) => {
+        console.log('data', result);  
+    });
+    }
+  }
   timer.refresh();
 });
 
