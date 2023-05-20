@@ -83,3 +83,12 @@ export const gameSetCntGlobal = atom<number>({
   default: 0,
 });
 
+export const resultJoinStepGlobal = atom<number>({
+  key: 'resultJoinStepGlobal',
+  default: 0,
+});
+
+export const roomChoiceStageGlobal = atom<boolean>({
+  key: 'roomChoiceStageGlobal',
+  default: false,
+});
