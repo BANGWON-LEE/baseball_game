@@ -165,10 +165,6 @@ const Ground: React.FC = () => {
   const [determineMyOutNum, setDetermineMyOutNum] = useRecoilState<string[]>(determineMyOutGlobal);
   const [determineMyAttackNum, setDetermineMyAttackNum] = useRecoilState<string[]>(determineMyAttackGlobal)
 
-  // const [determineMyAttackNum, setDetermineMyAttackNum] = useState<string[]>(
-  //   []
-  // );
-
   let myScore: Score = {};
 
   const teamOriginId = useRecoilState<string | null>(myTeamOriginId)
