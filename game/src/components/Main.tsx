@@ -5,7 +5,9 @@ import '../styles/component.scss'
 import {useRecoilState} from "recoil"
 import io from "socket.io-client";
 import { checkRoomUserCntApi, joinRoomApi } from "../api/room";
-import { roomUserCntState } from "../recoil/atoms";
+import { resultJoinStepGlobal, roomChoiceStageGlobal, roomUserCntState } from "../recoil/atoms";
+import GameStart from "./main/GameStart";
+import EnterRoom from "./main/EnterRoom";
 export const socket = io('localhost:5000');
 
 export const SocketContext = createContext ;
@@ -24,7 +26,7 @@ const Main: React.FC = () => {
   const location = useLocation();
   const removeUserCnt : number = -1;
 
-  const [roomChoiceStage, setRoomChoiceStage] = useState<Boolean>(false)
+  const [roomChoiceStage, setRoomChoiceStage] = useRecoilState<boolean>(roomChoiceStageGlobal)
   const [roomUserCnt, setRoomUserCnt] = useRecoilState(roomUserCntState)  
 
   async function getRoomUserCnt(){
@@ -33,38 +35,7 @@ const Main: React.FC = () => {
     const roomUserCntApi = await checkRoomUserCntApi();
     console.log('roomUserCntApi',roomUserCntApi);
     setRoomUserCnt(roomUserCntApi)
-
   }
-
-  const getEnterRoomUserCnt =async(roomNum:any) => {
-    // 방에 입장 시도 할 때 실행되는 함수
-    let joinCnt = 1;
-    console.log('getEnter 시작')
-    console.log('isUserCntFull 시작', roomNum)
-    const roomUserCntApi = await checkRoomUserCntApi();
-    console.log('getEnter roomUserCntApi 시작',roomUserCntApi);
-    // setRoomUserCnt(roomUserCntApi)
-
-    const isUserCntFull = roomUserCntApi.some(
-      (user: any) => user['room_no'] === roomNum && user['user_cnt'] === '2',
-    );
-  
-    if (isUserCntFull) {
-      alert('인원이 모두 입장했으므로 입장 하실 수 없습니다.');
-      getRoomUserCnt()
-      navigate('/')
-      return;
-    }
-
-    setRoomChoiceStage(true)
-
-    const roomUserCntUpdate = {'room_no' : roomNum, 'user_cnt' : joinCnt}
-    joinRoomApi(roomUserCntUpdate);    
-    setSearchParams({ no: roomNum, stage:'1' })
-    sessionStorage.setItem('roomId', roomNum)
-  }
-
-  console.log('roomId 확인', roomId)
 
   useEffect(() => {
     // 게임 방 입장 시, 세션에 저장된 방번호를 가져와 페이지 이동을 방지함
@@ -105,7 +76,6 @@ const Main: React.FC = () => {
     socket.emit('joinRoom', roomId);
     // window.addEventListener("unload", handleDisconnect);
 
-  
     // socket.on('disconnect',);
   
     // const handleVisitorCount = (data: any) => {
@@ -128,7 +98,7 @@ const Main: React.FC = () => {
   
   let joinStep:number = 0; 
   // let resultJoinStep:number = 0;
-  const [resultJoinStep, setResultJoinStep] = useState<number>(0)
+  
   const registerTeam = () : void => {
     socket.emit('teamName', { room: roomId, teamName });
 
@@ -158,6 +128,9 @@ const Main: React.FC = () => {
   
   const [rivalTeamName, setRivalTeamName] = useState<string[]>([]);
   const [userReady, setUserReady]= useState<string>('false');  
+
+  const [resultJoinStep, setResultJoinStep] = useRecoilState<number>(resultJoinStepGlobal)
+
 
   useEffect(() =>  {
 
@@ -199,98 +172,6 @@ const Main: React.FC = () => {
 
   },[teamName, rivalNameCheck]);
 
-  
-  interface BtnType
-  {
-      num : Line[];
-  }
-  
-  interface Line
-  {
-      no: string;
-      // no2: string;
-      // no3: string;
-  };
-
-  const numObject : BtnType = {
-  num:[
-    {no:'1'},
-    {no:'2'},
-    {no:'3'}
-    ]  
-  }
-  
-  const EnterRoom = ({setRoomChoiceStage,  roomUserCnt}:any) =>{
-
-      const joinRoom = ({roomNum}:any) => {
-        console.log('roomNum 시시작', roomNum)
-        getEnterRoomUserCnt(roomNum)
-      }
-
-
-    return( 
-      <div>
-        <div className="room-refresh">
-          <button className="room-refresh_btn" onClick={()=>getRoomUserCnt()}>새로고침</button>
-        </div>
-        <div  className="project-block btn-block">
-        {numObject.num.map((num : Line) => (
-          console.log('dfd',num['no']), 
-        <div key={"room " + num['no']} className="project_title_change">
-          <button className="project_title_change_team_name room-btn" onClick={() => joinRoom({roomNum : num['no']})}   >{num['no'] +"번 방"}</button>          
-        </div>
-          ))
-        }
-        </div>
-        <div  className="project-block">
-        {
-        roomUserCnt.map((user:any, num:string) => (
-        <div key={'userCnt'+num} className={`project-block_user-cnt${user['room_no']}`}>
-          {user['user_cnt']}명 입장
-        </div>
-        ))
-        }
-        </div>
-      
-    </div> 
-    )
-  }
-
-
-
-  interface GameBtnType{
-    userReady: string,
-    rivalTeamName : string[],
-    roomId : string,
-    teamName : string,
-    joinStep : number
-
-  }
-  
-
-
-  const GameStart = ({userReady, rivalTeamName, roomId, teamName}: GameBtnType) =>{
-
-    console.log('게임스타트', userReady)
-
-    return(
-      <>
-      { userReady=== 'false' && rivalTeamName.length === 2 && resultJoinStep === 2 ?
-        <Link to={`/game?no=${roomId}&team=${teamName}&id=1`}>
-          <button className="btn_game_start">
-            게임시작
-          </button>
-        </Link>
-      : userReady === 'true' && rivalTeamName.length >= 2 && resultJoinStep === 1 &&
-      <Link to={`/game?no=${roomId}&team=${teamName}&id=1.5`}>
-          <button className="btn_game_start">
-            게임시작
-          </button>
-        </Link>
-       }
-    </>
-    )
-  }
  
   const moveBack = () => {
     // socket.emit('userCnt', { room: roomId, userCnt: removeUserCnt });
@@ -322,7 +203,7 @@ const Main: React.FC = () => {
         <div className="project_content">
           <div>
             { roomChoiceStage === false && stage !== '1' && 
-            <EnterRoom setRoomChoiceStage={setRoomChoiceStage} roomUserCnt={roomUserCnt} />
+            <EnterRoom getRoomUserCnt={getRoomUserCnt} />
             }
             {resultName === false && stage === '1'&& roomId !== 'null' &&
             <>
