@@ -39,10 +39,10 @@ const Main: React.FC = () => {
 
   useEffect(() => {
     // 게임 방 입장 시, 세션에 저장된 방번호를 가져와 페이지 이동을 방지함
-    console.log('navi1')
+    // console.log('navi1')
     const handleBackButton = () => {
       const sessionRoomId = sessionStorage.getItem('roomId')
-      console.log('navi2',`${roomId}` )
+      // console.log('navi2',`${roomId}` )
       navigate(`${location.pathname}?no=${sessionRoomId}&stage=${1}`);
       
     };
@@ -63,7 +63,7 @@ const Main: React.FC = () => {
 
       if (roomChoiceStage === false && renderCnt === 1  ) {
         renderCnt+=1
-        console.log('유즈이펙트 횟수',   renderCnt);
+        // console.log('유즈이펙트 횟수',   renderCnt);
         alert('로비를 통해서 방에 접속해주세요.');
         navigate('/')
       }
@@ -148,7 +148,7 @@ const Main: React.FC = () => {
     // socket.emit('add user', nickname);
     if(rivalNameCheck=== true && teamName){
     // const checkSocket = () =>{
-      socket.on('responseTeamName', handleResponseTeamName);
+      socket.on('responseTeamName', handleResponseTeamName);  
 
     socket.on('joinStep', (data) => {
       console.log('조인스텝', typeof(data.joinStep))
@@ -175,7 +175,7 @@ const Main: React.FC = () => {
  
   const moveBack = () => {
     // socket.emit('userCnt', { room: roomId, userCnt: removeUserCnt });
-    let joinCnt = -1;
+    let joinCnt : number = -1;
 
     const roomUserCntUpdate = {'room_no' : roomId, 'user_cnt' : joinCnt}
     joinRoomApi(roomUserCntUpdate);
