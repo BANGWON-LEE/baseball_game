@@ -1,29 +1,29 @@
 import { atom } from "recoil"
 
-export const rivalTeamNameState = atom<string>({
-   key: 'rivalTeamNameState',
-   default: '',
- });
+  export const rivalTeamNameState = atom<string>({
+    key: 'rivalTeamNameState',
+    default: '',
+  });
 
- export const rivalTeamScoreState = atom<number>({
-   key: 'rivalTeamScoreState',
-   default: 0,
- });
+  export const rivalTeamScoreState = atom<number>({
+    key: 'rivalTeamScoreState',
+    default: 0,
+  });
 
- interface roomUserCntStateType {
+  interface roomUserCntStateType {
     room_no : string;
     user_cnt : string;
- }
+  }
 
- export const roomUserCntState = atom<roomUserCntStateType[]>({
-  key: 'roomUserCntState',
-  default: [
-    {
-      room_no: '',
-      user_cnt:''
-    }
-  ],
-});
+  export const roomUserCntState = atom<roomUserCntStateType[]>({
+    key: 'roomUserCntState',
+    default: [
+      {
+        room_no: '',
+        user_cnt:''
+      }
+    ],
+  });
 
 export const myTeamOriginId = atom<string | null>({
   key: 'myTeamOriginId',
